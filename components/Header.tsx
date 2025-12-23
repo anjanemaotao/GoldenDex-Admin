@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Wallet as WalletIcon, ChevronDown, Copy, LogOut, Check, Shield } from 'lucide-react';
+import { Bell, Wallet as WalletIcon, ChevronDown, Copy, LogOut, Check, Shield } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { Language } from '../translations';
 
@@ -40,20 +39,7 @@ const Header: React.FC<HeaderProps> = ({ address, onDisconnect }) => {
   }, []);
 
   return (
-    <header className="h-16 bg-[#0a0a0b]/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-8 sticky top-0 z-50 transition-colors duration-300">
-      <div className="flex items-center flex-1 max-w-xl">
-        <div className="relative w-full">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-500" />
-          </span>
-          <input
-            className="block w-full bg-gray-900/50 border border-gray-800 rounded-lg py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all"
-            placeholder={t.header.search}
-            type="text"
-          />
-        </div>
-      </div>
-
+    <header className="h-16 bg-[#0a0a0b]/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-end px-8 sticky top-0 z-50 transition-colors duration-300">
       <div className="flex items-center space-x-4">
         {/* Language Switcher */}
         <div className="flex items-center bg-gray-900/80 border border-gray-800 rounded-lg p-1">

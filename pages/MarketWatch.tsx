@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, ArrowUpRight, ArrowDownRight, LayoutGrid, Calendar, Layers, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
@@ -16,27 +17,27 @@ const MarketWatch: React.FC = () => {
   const mockPositions = [
     { 
       id: 'P1001', userWallet: '0xd3e...58e3', contract: 'XAUUSDC', direction: 'LONG', 
-      leverage: 20, margin: 5000, marginType: t.market.marginIsolated, liqPrice: 2540.50, pnl: 450, roi: 9, 
+      leverage: 20, margin: 5000, marginType: t.market.marginIsolated, entryPrice: 2610.45, liqPrice: 2540.50, pnl: 450, roi: 9, 
       marginRate: 45, status: 'NORMAL', openedAt: '2025-12-10 09:30:12' 
     },
     { 
       id: 'P1002', userWallet: '0x8a2...3211', contract: 'XAUUSDC', direction: 'SHORT', 
-      leverage: 50, margin: 2000, marginType: t.market.marginCross, liqPrice: 2685.20, pnl: -120, roi: -6, 
+      leverage: 50, margin: 2000, marginType: t.market.marginCross, entryPrice: 2655.10, liqPrice: 2685.20, pnl: -120, roi: -6, 
       marginRate: 82, status: 'WARNING', openedAt: '2025-12-10 10:15:45' 
     },
     { 
       id: 'P1003', userWallet: '0x4f1...99bc', contract: 'XAUUSDC', direction: 'LONG', 
-      leverage: 10, margin: 15000, marginType: t.market.marginCross, liqPrice: 2410.00, pnl: 2300, roi: 15.3, 
+      leverage: 10, margin: 15000, marginType: t.market.marginCross, entryPrice: 2595.00, liqPrice: 2410.00, pnl: 2300, roi: 15.3, 
       marginRate: 22, status: 'NORMAL', openedAt: '2025-12-10 11:05:00' 
     },
     { 
       id: 'P1004', userWallet: '0xabc...ef67', contract: 'XAUUSDC', direction: 'SHORT', 
-      leverage: 100, margin: 1000, marginType: t.market.marginIsolated, liqPrice: 2652.80, pnl: -850, roi: -85, 
+      leverage: 100, margin: 1000, marginType: t.market.marginIsolated, entryPrice: 2645.50, liqPrice: 2652.80, pnl: -850, roi: -85, 
       marginRate: 98, status: 'LIQUIDATING', openedAt: '2025-12-10 11:45:22' 
     },
   ];
 
-  // Mock Filled History with Tx Types and Translations
+  // Mock All Platform Filled History
   const mockFilledHistory = [
     { id: 'T5001', userWallet: '0xd3e...58e3', direction: 'LONG', contract: 'XAUUSDC', orderType: t.market.marketOrder, txType: t.market.txClose, quantity: '10.5', amount: '27,742.50', fee: '13.87', pnl: '450.20', time: '2025-12-10 11:58:22' },
     { id: 'T5002', userWallet: '0x8a2...3211', direction: 'SHORT', contract: 'XAUUSDC', orderType: t.market.limitOrder, txType: t.market.txOpen, quantity: '5.0', amount: '13,210.00', fee: '6.60', pnl: '-', time: '2025-12-10 11:45:10' },
@@ -180,7 +181,7 @@ const MarketWatch: React.FC = () => {
       {/* Table Container */}
       <div className="bg-gray-900/40 border border-gray-800 rounded-3xl overflow-x-auto shadow-2xl">
         {activeTab === 'OPEN' ? (
-          <table className="w-full text-left min-w-[1000px]">
+          <table className="w-full text-left min-w-[1100px]">
             <thead className="bg-gray-800/50 text-gray-400 text-[10px] uppercase tracking-widest font-black">
               <tr>
                 <th className="px-6 py-5">{t.common.address} / {t.common.id}</th>
@@ -188,6 +189,7 @@ const MarketWatch: React.FC = () => {
                 <th className="px-6 py-5">{t.market.leverage}</th>
                 <th className="px-6 py-5">{t.market.margin}</th>
                 <th className="px-6 py-5">{t.market.marginType}</th>
+                <th className="px-6 py-5">{t.market.entryPrice}</th>
                 <th className="px-6 py-5">{t.market.liqPrice}</th>
                 <th className="px-6 py-5">{t.market.pnl}</th>
                 <th className="px-6 py-5">{t.market.marginRate}</th>
@@ -217,6 +219,7 @@ const MarketWatch: React.FC = () => {
                       {pos.marginType}
                     </span>
                   </td>
+                  <td className="px-6 py-5 text-sm text-white font-mono font-bold">${pos.entryPrice.toFixed(2)}</td>
                   <td className="px-6 py-5 text-sm text-amber-500 font-mono font-bold">${pos.liqPrice.toFixed(2)}</td>
                   <td className="px-6 py-5">
                     <div className={`text-sm font-black ${pos.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>

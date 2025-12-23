@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Trophy, ShieldCheck, Loader2 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
@@ -22,7 +21,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     { 
       name: t.login.okx, 
       id: 'okx', 
-      icon: "https://static.okx.com/cdn/assets/imgs/221/9E9A68D5F6B9E8A2.png" 
+      icon: "https://s2.coinmarketcap.com/static/img/exchanges/64x64/294.png" 
     },
     { 
       name: t.login.binance, 
