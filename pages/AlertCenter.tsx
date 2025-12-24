@@ -1,7 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { Bell, CheckCheck, Clock, Calendar, Filter } from 'lucide-react';
-import { Alert } from '../types';
+import { Alert as AlertType } from '../types';
 import { useLanguage } from '../LanguageContext';
+
+interface EnhancedAlert extends Omit<AlertType, 'type' | 'description'> {
+  typeKey: string;
+}
 
 const AlertCenter: React.FC = () => {
   const { t } = useLanguage();
@@ -11,14 +15,18 @@ const AlertCenter: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
-  // Initial data shifted to state to support read status updates
-  const [alerts, setAlerts] = useState<Alert[]>([
+  // Safety helper for translation access
+  const safeT = useMemo(() => {
+    return t.alerts?.messages || {};
+  }, [t]);
+
+  // Initial data using keys instead of translated strings to prevent crash and support language switching
+  const [alerts, setAlerts] = useState<EnhancedAlert[]>([
     { 
       id: 'A001', 
       timestamp: '2025-12-10 12:45:00', 
       contract: 'XAUUSDC', 
-      type: t.alerts.messages.oracleDelay, 
-      description: t.alerts.messages.oracleDelayDesc, 
+      typeKey: 'oracleDelay', 
       level: 'MEDIUM', 
       isRead: false 
     },
@@ -26,8 +34,7 @@ const AlertCenter: React.FC = () => {
       id: 'A002', 
       timestamp: '2025-12-10 12:44:12', 
       contract: 'XAUUSDC', 
-      type: t.alerts.messages.highMarginRate, 
-      description: t.alerts.messages.highMarginRateDesc, 
+      typeKey: 'highMarginRate', 
       level: 'HIGH', 
       isRead: false 
     },
@@ -35,8 +42,7 @@ const AlertCenter: React.FC = () => {
       id: 'A003', 
       timestamp: '2025-12-10 12:30:05', 
       contract: 'XAUUSDC', 
-      type: t.alerts.messages.liqEvent, 
-      description: t.alerts.messages.liqEventDesc, 
+      typeKey: 'liqEvent', 
       level: 'HIGH', 
       isRead: true 
     },
@@ -44,8 +50,7 @@ const AlertCenter: React.FC = () => {
       id: 'A004', 
       timestamp: '2025-12-10 12:15:00', 
       contract: 'XAUUSDC', 
-      type: t.alerts.messages.priceAnomaly, 
-      description: t.alerts.messages.priceAnomalyDesc, 
+      typeKey: 'priceAnomaly', 
       level: 'LOW', 
       isRead: true 
     },
@@ -59,13 +64,13 @@ const AlertCenter: React.FC = () => {
     setAlerts(prev => prev.map(a => ({ ...a, isRead: true })));
   };
 
-  const alertTypes = [
+  const alertTypes = useMemo(() => [
     { label: t.common.all, value: 'ALL' },
-    { label: t.alerts.messages.oracleDelay, value: t.alerts.messages.oracleDelay },
-    { label: t.alerts.messages.highMarginRate, value: t.alerts.messages.highMarginRate },
-    { label: t.alerts.messages.liqEvent, value: t.alerts.messages.liqEvent },
-    { label: t.alerts.messages.priceAnomaly, value: t.alerts.messages.priceAnomaly },
-  ];
+    { label: safeT.oracleDelay || 'Oracle Delay', value: 'oracleDelay' },
+    { label: safeT.highMarginRate || 'High MR', value: 'highMarginRate' },
+    { label: safeT.liqEvent || 'Liquidation', value: 'liqEvent' },
+    { label: safeT.priceAnomaly || 'Price Anomaly', value: 'priceAnomaly' },
+  ], [t, safeT]);
 
   const filteredAlerts = useMemo(() => {
     return alerts.filter(alert => {
@@ -73,7 +78,7 @@ const AlertCenter: React.FC = () => {
       if (activeTab === 'UNREAD' && alert.isRead) return false;
       
       // Type filter
-      if (typeFilter !== 'ALL' && alert.type !== typeFilter) return false;
+      if (typeFilter !== 'ALL' && alert.typeKey !== typeFilter) return false;
       
       // Date filter
       if (dateRange.start) {
@@ -104,16 +109,16 @@ const AlertCenter: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center">
             <Bell className="w-6 h-6 mr-3 text-amber-500" />
-            {t.alerts.title}
+            {t.alerts?.title || 'Alerts'}
           </h1>
-          <p className="text-gray-400">{t.alerts.subtitle}</p>
+          <p className="text-gray-400">{t.alerts?.subtitle || 'System Notifications'}</p>
         </div>
         <button 
           onClick={handleMarkAllAsRead}
           className="flex items-center space-x-2 text-gray-400 hover:text-amber-500 transition-colors bg-gray-900 border border-gray-800 px-4 py-2 rounded-xl"
         >
           <CheckCheck className="w-4 h-4" />
-          <span className="text-sm font-bold uppercase tracking-tight">{t.alerts.markRead}</span>
+          <span className="text-sm font-bold uppercase tracking-tight">{t.alerts?.markRead || 'Ack All'}</span>
         </button>
       </div>
 
@@ -125,20 +130,20 @@ const AlertCenter: React.FC = () => {
             onClick={() => setActiveTab('ALL')}
             className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'ALL' ? 'bg-amber-500 text-white' : 'text-gray-500 hover:text-white'}`}
           >
-            {t.alerts.allMsgs}
+            {t.alerts?.allMsgs || 'All'}
           </button>
           <button 
             onClick={() => setActiveTab('UNREAD')}
             className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'UNREAD' ? 'bg-amber-500 text-white' : 'text-gray-500 hover:text-white'}`}
           >
-            {t.alerts.unread}
+            {t.alerts?.unread || 'Unread'}
           </button>
         </div>
 
         {/* Type Filter */}
         <div className="flex items-center space-x-2 bg-gray-900 border border-gray-800 rounded-xl px-3 py-1.5 hover:border-gray-700 transition-all">
           <Filter className="w-3.5 h-3.5 text-gray-500" />
-          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.alerts.filterType}:</span>
+          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.alerts?.filterType || 'Category'}:</span>
           <select 
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
@@ -154,7 +159,7 @@ const AlertCenter: React.FC = () => {
         <div className="flex items-center bg-gray-900 border border-gray-800 rounded-xl px-4 py-1.5 space-x-3 group hover:border-gray-700 transition-all">
           <Calendar className="w-4 h-4 text-gray-500 group-hover:text-amber-500 transition-colors" />
           <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.market.dateRange}:</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.market?.dateRange || 'Range'}:</span>
             <input 
               type="date" 
               className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer"
@@ -189,7 +194,9 @@ const AlertCenter: React.FC = () => {
               
               <div className="flex-1 space-y-1">
                 <div className="flex justify-between items-start">
-                  <h4 className={`font-bold tracking-wide transition-colors ${alert.isRead ? 'text-gray-400' : 'text-white'}`}>{alert.type}</h4>
+                  <h4 className={`font-bold tracking-wide transition-colors ${alert.isRead ? 'text-gray-400' : 'text-white'}`}>
+                    {(safeT as any)[alert.typeKey] || alert.typeKey}
+                  </h4>
                   <div className="flex items-center text-[10px] text-gray-500 font-mono">
                     <Clock className="w-3 h-3 mr-1" />
                     {alert.timestamp}
@@ -204,10 +211,12 @@ const AlertCenter: React.FC = () => {
                       'bg-green-900/20 text-green-500'
                     )}
                   `}>
-                    {t.common.level}: {t.common.levels[alert.level as keyof typeof t.common.levels]}
+                    {(t.common?.level || 'Level')}: {(t.common?.levels as any)?.[alert.level] || alert.level}
                   </span>
                 </div>
-                <p className={`text-sm leading-relaxed ${alert.isRead ? 'text-gray-500' : 'text-gray-300'}`}>{alert.description}</p>
+                <p className={`text-sm leading-relaxed ${alert.isRead ? 'text-gray-500' : 'text-gray-300'}`}>
+                  {(safeT as any)[`${alert.typeKey}Desc`] || 'Alert details...'}
+                </p>
                 
                 {!alert.isRead && (
                   <div className="pt-4">
@@ -216,7 +225,7 @@ const AlertCenter: React.FC = () => {
                       className="text-xs font-black text-amber-500 hover:text-amber-400 transition-colors uppercase tracking-widest flex items-center group"
                     >
                       <CheckCheck className="w-3.5 h-3.5 mr-1.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      {t.alerts.ack}
+                      {t.alerts?.ack || 'Acknowledge'}
                     </button>
                   </div>
                 )}
@@ -226,7 +235,7 @@ const AlertCenter: React.FC = () => {
         ) : (
           <div className="py-20 flex flex-col items-center justify-center text-center opacity-30">
              <Bell className="w-16 h-16 mb-4" />
-             <p className="text-sm font-bold uppercase tracking-widest">{t.common.none}</p>
+             <p className="text-sm font-bold uppercase tracking-widest">{t.common?.none || 'None'}</p>
           </div>
         )}
       </div>

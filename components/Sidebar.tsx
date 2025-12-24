@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
@@ -12,12 +11,16 @@ import {
   Wallet, 
   ScrollText, 
   Settings,
-  Trophy
+  Coins,
+  Shield,
+  User
 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 const Sidebar: React.FC = () => {
   const { t } = useLanguage();
+  const walletAddress = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F";
+  const shortenedAddress = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
 
   const navItems = [
     { name: t.nav.dashboard, path: '/dashboard', icon: LayoutDashboard },
@@ -29,43 +32,61 @@ const Sidebar: React.FC = () => {
     { name: t.nav.users, path: '/users', icon: Users },
     { name: t.nav.funds, path: '/funds', icon: Wallet },
     { name: t.nav.logs, path: '/logs', icon: ScrollText },
+    { name: t.nav.contractManager, path: '/contracts', icon: Coins },
     { name: t.nav.params, path: '/settings', icon: Settings },
   ];
 
   return (
-    <div className="w-64 bg-[#111827] border-r border-gray-800 flex flex-col transition-all duration-300">
-      <div className="p-6 flex items-center space-x-3">
-        <div className="w-10 h-10 gold-gradient rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/20">
-          <Trophy className="text-white w-6 h-6" />
+    <div className="w-64 bg-[#0d1117] border-r border-gray-800/50 flex flex-col transition-all duration-300">
+      {/* Premium Logo Section */}
+      <div className="p-8 flex items-center space-x-3">
+        <div className="relative group cursor-pointer">
+          <div className="absolute -inset-1 bg-gradient-to-r from-amber-600 to-yellow-400 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+          <div className="relative w-11 h-11 gold-gradient rounded-xl flex items-center justify-center shadow-2xl shadow-amber-900/40 ring-1 ring-white/20">
+            <Shield className="text-white w-6 h-6" strokeWidth={2.5} />
+          </div>
         </div>
-        <span className="text-xl font-bold gold-text tracking-tight">GoldenDex</span>
+        <div className="flex flex-col">
+          <span className="text-lg font-black text-white tracking-tighter leading-none">GoldenDex</span>
+          <span className="text-[10px] font-black gold-text uppercase tracking-[0.2em] mt-1">Admin</span>
+        </div>
       </div>
 
-      <nav className="flex-1 mt-4 px-3 space-y-1">
+      <nav className="flex-1 mt-2 px-4 space-y-1">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) => `
-              flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200
+              flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-300
               ${isActive 
-                ? 'bg-amber-900/20 text-amber-500 border-l-4 border-amber-500' 
-                : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                ? 'bg-amber-500/10 text-amber-500 shadow-sm border border-amber-500/20' 
+                : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/40'
               }
             `}
           >
-            <item.icon className="mr-3 h-5 w-5" />
-            {item.name}
+            {({ isActive }) => (
+              <>
+                <item.icon className={`mr-3 h-5 w-5 transition-colors ${isActive ? 'text-amber-500' : 'opacity-70'}`} strokeWidth={2.5} />
+                {item.name}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-800">
-        <div className="bg-gray-800/50 rounded-lg p-3">
-          <p className="text-xs text-gray-500 uppercase font-semibold mb-2">{t.nav.loggedAs}</p>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-xs font-mono text-gray-300">0xRoot...8888</span>
+      {/* Redesigned Profile Section */}
+      <div className="p-4 border-t border-gray-800/50 bg-gray-900/20">
+        <div className="flex items-center space-x-3 p-2">
+          <div className="w-10 h-10 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center overflow-hidden">
+            <User className="w-5 h-5 text-gray-400" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <p className="text-xs font-black text-white uppercase truncate tracking-wide">Root Administrator</p>
+            <div className="flex items-center space-x-1.5 mt-0.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+              <span className="text-[10px] font-mono text-gray-500 font-bold">{shortenedAddress}</span>
+            </div>
           </div>
         </div>
       </div>

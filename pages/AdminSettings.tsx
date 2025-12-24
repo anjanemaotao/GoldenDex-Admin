@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { UserPlus, Shield, Trash2, Edit2, ShieldAlert, Plus, X, Check } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { UserPlus, Shield, Trash2, Edit2, ShieldAlert, Plus, X, Check, ListChecks } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 interface Role {
@@ -38,6 +37,15 @@ const AdminSettings: React.FC = () => {
   const [adminForm, setAdminForm] = useState({ name: '', wallet: '', roleId: 'role-2' });
   const [roleForm, setRoleForm] = useState<{ name: string, permissions: string[] }>({ name: '', permissions: [] });
 
+  // Validation Logic
+  const isAdminFormValid = useMemo(() => {
+    return adminForm.name.trim() !== '' && adminForm.wallet.trim() !== '';
+  }, [adminForm]);
+
+  const isRoleFormValid = useMemo(() => {
+    return roleForm.name.trim() !== '' && roleForm.permissions.length > 0;
+  }, [roleForm]);
+
   const allPerms = [
     { path: '/dashboard', label: t.nav.dashboard },
     { path: '/admin', label: t.nav.admin },
@@ -48,6 +56,7 @@ const AdminSettings: React.FC = () => {
     { path: '/users', label: t.nav.users },
     { path: '/funds', label: t.nav.funds },
     { path: '/logs', label: t.nav.logs },
+    { path: '/contracts', label: t.nav.contractManager },
     { path: '/settings', label: t.nav.params },
   ];
 
@@ -62,6 +71,7 @@ const AdminSettings: React.FC = () => {
   };
 
   const handleAdminSubmit = () => {
+    if (!isAdminFormValid) return;
     if (adminModal.editId) {
       setAdmins(admins.map(a => a.id === adminModal.editId ? { ...a, ...adminForm } : a));
     } else {
@@ -85,6 +95,7 @@ const AdminSettings: React.FC = () => {
   };
 
   const handleRoleSubmit = () => {
+    if (!isRoleFormValid) return;
     if (roleModal.editId) {
       setRoles(roles.map(r => r.id === roleModal.editId ? { ...r, ...roleForm } : r));
     } else {
@@ -104,6 +115,14 @@ const AdminSettings: React.FC = () => {
         ? prev.permissions.filter(p => p !== path) 
         : [...prev.permissions, path]
     }));
+  };
+
+  const toggleAllPermissions = () => {
+    if (roleForm.permissions.length === allPerms.length) {
+      setRoleForm(prev => ({ ...prev, permissions: [] }));
+    } else {
+      setRoleForm(prev => ({ ...prev, permissions: allPerms.map(p => p.path) }));
+    }
   };
 
   return (
@@ -241,7 +260,7 @@ const AdminSettings: React.FC = () => {
                   type="text" 
                   value={adminForm.name}
                   onChange={e => setAdminForm({...adminForm, name: e.target.value})}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all"
+                  className={`w-full bg-gray-800 border ${adminForm.name.trim() === '' ? 'border-red-500' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all`}
                   placeholder="e.g. Satoshi"
                 />
               </div>
@@ -251,7 +270,7 @@ const AdminSettings: React.FC = () => {
                   type="text" 
                   value={adminForm.wallet}
                   onChange={e => setAdminForm({...adminForm, wallet: e.target.value})}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none font-mono focus:border-amber-500 transition-all"
+                  className={`w-full bg-gray-800 border ${adminForm.wallet.trim() === '' ? 'border-red-500' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none font-mono focus:border-amber-500 transition-all`}
                   placeholder="0x..."
                 />
               </div>
@@ -277,7 +296,8 @@ const AdminSettings: React.FC = () => {
               </button>
               <button 
                 onClick={handleAdminSubmit}
-                className="flex-1 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-xl text-sm font-bold text-white transition-all shadow-lg shadow-amber-900/20"
+                disabled={!isAdminFormValid}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-lg ${isAdminFormValid ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-900/20' : 'bg-gray-700 cursor-not-allowed opacity-50'}`}
               >
                 {t.common.confirm}
               </button>
@@ -300,13 +320,22 @@ const AdminSettings: React.FC = () => {
                   type="text" 
                   value={roleForm.name}
                   onChange={e => setRoleForm({...roleForm, name: e.target.value})}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all"
+                  className={`w-full bg-gray-800 border ${roleForm.name.trim() === '' ? 'border-red-500' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all`}
                   placeholder="e.g. Risk Manager"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-3">{t.admin.modals.fields.permissions}</label>
-                <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scroll">
+                <div className="flex items-center justify-between mb-3">
+                  <label className={`block text-xs font-bold ${roleForm.permissions.length === 0 ? 'text-red-500' : 'text-gray-500'} uppercase`}>{t.admin.modals.fields.permissions}</label>
+                  <button 
+                    onClick={toggleAllPermissions}
+                    className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-[10px] font-black uppercase text-amber-500 transition-all"
+                  >
+                    <ListChecks className="w-3.5 h-3.5" />
+                    <span>{roleForm.permissions.length === allPerms.length ? t.admin.modals.deselectAll : t.admin.modals.selectAll}</span>
+                  </button>
+                </div>
+                <div className={`grid grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scroll border p-2 rounded-xl transition-all ${roleForm.permissions.length === 0 ? 'border-red-500/50' : 'border-transparent'}`}>
                   {allPerms.map(p => (
                     <button
                       key={p.path}
@@ -333,7 +362,8 @@ const AdminSettings: React.FC = () => {
               </button>
               <button 
                 onClick={handleRoleSubmit}
-                className="flex-1 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-xl text-sm font-bold text-white transition-all shadow-lg shadow-amber-900/20"
+                disabled={!isRoleFormValid}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-lg ${isRoleFormValid ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-900/20' : 'bg-gray-700 cursor-not-allowed opacity-50'}`}
               >
                 {t.common.confirm}
               </button>

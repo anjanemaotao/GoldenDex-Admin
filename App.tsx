@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './LanguageContext';
@@ -14,6 +13,7 @@ import AlertCenter from './pages/AlertCenter';
 import UserManagement from './pages/UserManagement';
 import FundRecords from './pages/FundRecords';
 import AuditLogs from './pages/AuditLogs';
+import ContractManager from './pages/ContractManager';
 import ContractSettings from './pages/ContractSettings';
 
 const App: React.FC = () => {
@@ -60,6 +60,7 @@ const App: React.FC = () => {
                 <Route path="/users" element={<UserManagement />} />
                 <Route path="/funds" element={<FundRecords />} />
                 <Route path="/logs" element={<AuditLogs />} />
+                <Route path="/contracts" element={<ContractManager />} />
                 <Route path="/settings" element={<ContractSettings />} />
               </Routes>
             </main>

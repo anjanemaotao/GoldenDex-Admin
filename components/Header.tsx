@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, Wallet as WalletIcon, ChevronDown, Copy, LogOut, Check, Shield } from 'lucide-react';
+import { Wallet as WalletIcon, ChevronDown, Copy, LogOut, Check, Shield } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { Language } from '../translations';
 
@@ -57,11 +57,6 @@ const Header: React.FC<HeaderProps> = ({ address, onDisconnect }) => {
             </button>
           ))}
         </div>
-
-        <button className="relative p-2 text-gray-400 hover:text-amber-500 transition-colors">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#0a0a0b]" />
-        </button>
 
         {/* Authenticated Wallet Display */}
         <div className="relative" ref={dropdownRef}>

@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { translations, Language } from './translations';
 
 interface LanguageContextType {
@@ -12,6 +11,14 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('zhCN');
+
+  // Update HTML lang attribute to control native browser locale (like date picker placeholders)
+  useEffect(() => {
+    const html = document.documentElement;
+    if (language === 'zhCN') html.setAttribute('lang', 'zh-CN');
+    else if (language === 'zhTW') html.setAttribute('lang', 'zh-TW');
+    else html.setAttribute('lang', 'en');
+  }, [language]);
 
   const value = {
     language,

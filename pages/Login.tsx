@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Trophy, ShieldCheck, Loader2 } from 'lucide-react';
+import { Trophy, ShieldCheck, Loader2, Shield } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 interface LoginProps {
   onLogin: (address: string) => void;
 }
 
+// Fixed the component definition to correctly destructure onLogin from props
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const { t } = useLanguage();
   const [connecting, setConnecting] = useState(false);
@@ -55,10 +56,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       
       <div className="w-full max-w-4xl space-y-8 animate-in fade-in zoom-in-95 duration-700 relative">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 gold-gradient rounded-3xl shadow-2xl shadow-amber-900/40 mb-2">
-            <Trophy className="w-10 h-10 text-white" />
+          <div className="inline-flex items-center justify-center w-20 h-20 gold-gradient rounded-3xl shadow-2xl shadow-amber-900/40 mb-2 ring-1 ring-white/20">
+            <Shield className="w-10 h-10 text-white" strokeWidth={2.5} />
           </div>
-          <h1 className="text-4xl font-black gold-text tracking-tighter">{t.login.mainTitle}</h1>
+          <h1 className="text-4xl font-black gold-text tracking-tighter">GoldenDex Admin</h1>
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-white">{t.login.title}</h2>
             <p className="text-sm text-gray-400 whitespace-nowrap px-4 w-full text-center">
