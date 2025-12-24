@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Trophy, Plus, Edit2, Settings, Shield, Loader2, Save, X, Image as ImageIcon, Search, RotateCcw } from 'lucide-react';
+import { Coins, Plus, Edit2, Settings, Shield, Loader2, Save, X, Image as ImageIcon, Search, RotateCcw } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 interface ContractItem {
@@ -143,7 +143,7 @@ const ContractManager: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center tracking-tight">
-            <Trophy className="w-6 h-6 mr-3 text-amber-500" />
+            <Coins className="w-6 h-6 mr-3 text-amber-500" />
             {t.contract.title}
           </h1>
           <p className="text-gray-400 text-sm">{t.contract.subtitle}</p>

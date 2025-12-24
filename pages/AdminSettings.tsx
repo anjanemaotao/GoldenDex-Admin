@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { UserPlus, Shield, Trash2, Edit2, ShieldAlert, Plus, X, Check, ListChecks } from 'lucide-react';
+import { UserPlus, Shield, Trash2, Edit2, ShieldAlert, Plus, X, Check, ListChecks, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 interface Role {
@@ -129,7 +129,10 @@ const AdminSettings: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white">{t.admin.title}</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center">
+            <ShieldCheck className="w-6 h-6 mr-3 text-amber-500" />
+            {t.admin.title}
+          </h1>
           <p className="text-gray-400">{t.admin.subtitle}</p>
         </div>
         <div className="flex space-x-3">

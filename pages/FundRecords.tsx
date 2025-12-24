@@ -125,7 +125,10 @@ const FundRecords: React.FC = () => {
       {/* Top Header & Main Tab Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">{t.funds.title}</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center">
+            <Wallet className="w-6 h-6 mr-3 text-amber-500" />
+            {t.funds.title}
+          </h1>
           <p className="text-gray-400 text-sm">{t.funds.subtitle}</p>
         </div>
         <div className="bg-gray-900/80 border border-gray-800 p-1 rounded-xl flex shadow-lg">
@@ -340,7 +343,8 @@ const FundRecords: React.FC = () => {
                            <span className={`text-[10px] font-black uppercase tracking-widest ${
                              withdrawTab === 'COMPLETED' ? 'text-green-500' :
                              withdrawTab === 'PROCESSING' ? 'text-blue-500' :
-                             withdrawTab === 'REJECTED' ? 'text-red-500' : 'text-gray-500'
+                             withdrawTab === 'REJECTED' ? 'text-red-500' :
+                             withdrawTab === 'FAILED' ? 'text-gray-500' : ''
                            }`}>
                              {t.funds.statusText[withdrawTab.toLowerCase() as keyof typeof t.funds.statusText]}
                            </span>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, AlertCircle, RefreshCcw, LayoutGrid, ChevronDown, TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
+import { CheckCircle2, AlertCircle, RefreshCcw, LayoutGrid, ChevronDown, TrendingUp, TrendingDown, Minus, Info, HeartPulse } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 const SystemHealth: React.FC = () => {
@@ -70,7 +70,10 @@ const SystemHealth: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white">{t.health.title}</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center">
+            <HeartPulse className="w-6 h-6 mr-3 text-amber-500" />
+            {t.health.title}
+          </h1>
           <p className="text-gray-400">{t.health.subtitle}</p>
         </div>
         <button className="flex items-center space-x-2 bg-gray-900 border border-gray-800 px-4 py-2 rounded-lg text-sm hover:border-amber-500 transition-all text-gray-300">

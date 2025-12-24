@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line, CartesianGrid } from 'recharts';
-import { Users, DollarSign, Activity, AlertCircle, TrendingUp, ShieldCheck, Layers, Users2, Timer, AlertTriangle } from 'lucide-react';
+import { Users, DollarSign, Activity, AlertCircle, TrendingUp, ShieldCheck, Layers, Users2, Timer, AlertTriangle, LayoutDashboard } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 const Dashboard: React.FC = () => {
@@ -54,7 +53,10 @@ const Dashboard: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-700 pb-12">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white transition-all duration-300">{t.dashboard.title}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white transition-all duration-300 flex items-center">
+            <LayoutDashboard className="w-8 h-8 mr-4 text-amber-500" />
+            {t.dashboard.title}
+          </h1>
           <p className="text-gray-400 mt-1">{t.dashboard.subtitle}</p>
         </div>
         <div className="flex space-x-4 text-xs font-medium text-gray-500 uppercase tracking-wider">

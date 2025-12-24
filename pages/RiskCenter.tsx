@@ -51,7 +51,10 @@ const RiskCenter: React.FC = () => {
     <div className="space-y-8 animate-in zoom-in-95 duration-500 pb-12">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-white transition-all duration-300">{t.risk.title}</h1>
+          <h1 className="text-2xl font-bold text-white transition-all duration-300 flex items-center">
+            <Activity className="w-6 h-6 mr-3 text-amber-500" />
+            {t.risk.title}
+          </h1>
           <p className="text-gray-400">{t.risk.subtitle}</p>
         </div>
         <div className="flex items-center space-x-4">

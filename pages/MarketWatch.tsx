@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Search, ArrowUpRight, ArrowDownRight, LayoutGrid, Calendar, Layers, ChevronDown } from 'lucide-react';
+import { Search, ArrowUpRight, ArrowDownRight, LayoutGrid, Calendar, Layers, ChevronDown, Eye } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 const MarketWatch: React.FC = () => {
@@ -74,7 +73,10 @@ const MarketWatch: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">{t.market.title}</h1>
+            <h1 className="text-2xl font-bold text-white flex items-center">
+              <Eye className="w-6 h-6 mr-3 text-amber-500" />
+              {t.market.title}
+            </h1>
             <p className="text-gray-400">{t.market.subtitle}</p>
           </div>
           <div className="relative group">

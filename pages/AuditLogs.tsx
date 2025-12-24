@@ -46,8 +46,8 @@ const AuditLogs: React.FC = () => {
     
     // 6. Gov (Insurance Fund)
     { id: 'G1', typeKey: 'ins', userId: 'Insurance Fund', ip: 'contract', address: '0xVault...Ins1', time: '2025-12-10 10:45:11', category: 'GOV', meta: { delta: '+250.2', source: t.funds.recharge } },
-    { id: 'G2', typeKey: 'params', userId: 'Root_A1', ip: '0.0.0.0', address: '0xRoot...8888', time: '2025-12-10 10:30:00', category: 'GOV', meta: { key: 'XAUUSDC 最大杠杆倍数', old: '2.4%', new: '2.5%' } },
-  ], [t.logs.types, t.funds.statusText, t.market, t.params.labels.orderFreq, t.funds.recharge]);
+    { id: 'G2', typeKey: 'params', userId: 'Root_A1', ip: '0.0.0.0', address: '0xRoot...8888', time: '2025-12-10 10:30:00', category: 'GOV', meta: { key: 'XAUUSDC ' + t.contract.params.maxLeverage, old: '2.4%', new: '2.5%' } },
+  ], [t.logs.types, t.funds.statusText, t.market, t.params.labels.orderFreq, t.funds.recharge, t.contract.params.maxLeverage]);
 
   const formatDetail = (log: LogRecord) => {
     const template = (t.logs.details as any)[log.typeKey];
