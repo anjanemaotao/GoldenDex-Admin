@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { UserPlus, Shield, Trash2, Edit2, ShieldAlert, Plus, X, Check, ListChecks, ShieldCheck } from 'lucide-react';
+import { UserPlus, Shield, Trash2, Edit2, ShieldAlert, X, Check, ListChecks, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 interface Role {
@@ -17,7 +17,7 @@ interface Admin {
 }
 
 const AdminSettings: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, showTip } = useLanguage();
 
   const [roles, setRoles] = useState<Role[]>([
     { id: 'role-1', name: t.admin.roles.super, isSuper: true, permissions: ['*'] },
@@ -31,20 +31,11 @@ const AdminSettings: React.FC = () => {
     { id: '3', name: 'Finance Lead', wallet: '0xFin...2222', roleId: 'role-3' },
   ]);
 
-  const [adminModal, setAdminModal] = useState<{ open: boolean, editId?: string }>({ open: false });
-  const [roleModal, setRoleModal] = useState<{ open: boolean, editId?: string }>({ open: false });
+  const [adminModal, setAdminModal] = useState<{ open: boolean, editId?: string, isSubmitted?: boolean }>({ open: false });
+  const [roleModal, setRoleModal] = useState<{ open: boolean, editId?: string, isSubmitted?: boolean }>({ open: false });
 
   const [adminForm, setAdminForm] = useState({ name: '', wallet: '', roleId: 'role-2' });
   const [roleForm, setRoleForm] = useState<{ name: string, permissions: string[] }>({ name: '', permissions: [] });
-
-  // Validation Logic
-  const isAdminFormValid = useMemo(() => {
-    return adminForm.name.trim() !== '' && adminForm.wallet.trim() !== '';
-  }, [adminForm]);
-
-  const isRoleFormValid = useMemo(() => {
-    return roleForm.name.trim() !== '' && roleForm.permissions.length > 0;
-  }, [roleForm]);
 
   const allPerms = [
     { path: '/dashboard', label: t.nav.dashboard },
@@ -67,21 +58,27 @@ const AdminSettings: React.FC = () => {
     } else {
       setAdminForm({ name: '', wallet: '', roleId: roles[1]?.id || 'role-2' });
     }
-    setAdminModal({ open: true, editId });
+    setAdminModal({ open: true, editId, isSubmitted: false });
   };
 
   const handleAdminSubmit = () => {
-    if (!isAdminFormValid) return;
+    setAdminModal(prev => ({ ...prev, isSubmitted: true }));
+    const isValid = adminForm.name.trim() !== '' && adminForm.wallet.trim() !== '';
+    if (!isValid) return;
+    
     if (adminModal.editId) {
       setAdmins(admins.map(a => a.id === adminModal.editId ? { ...a, ...adminForm } : a));
+      showTip(t.tips.adminUpdated, 'success');
     } else {
       setAdmins([...admins, { id: Math.random().toString(36).substr(2, 9), ...adminForm }]);
+      showTip(t.tips.adminAdded, 'success');
     }
     setAdminModal({ open: false });
   };
 
-  const deleteAdmin = (id: string) => {
+  const handleDeleteAdmin = (id: string) => {
     setAdmins(admins.filter(a => a.id !== id));
+    showTip(t.tips.adminDeleted, 'info');
   };
 
   const openRoleModal = (editId?: string) => {
@@ -91,21 +88,27 @@ const AdminSettings: React.FC = () => {
     } else {
       setRoleForm({ name: '', permissions: [] });
     }
-    setRoleModal({ open: true, editId });
+    setRoleModal({ open: true, editId, isSubmitted: false });
   };
 
   const handleRoleSubmit = () => {
-    if (!isRoleFormValid) return;
+    setRoleModal(prev => ({ ...prev, isSubmitted: true }));
+    const isValid = roleForm.name.trim() !== '' && roleForm.permissions.length > 0;
+    if (!isValid) return;
+    
     if (roleModal.editId) {
       setRoles(roles.map(r => r.id === roleModal.editId ? { ...r, ...roleForm } : r));
+      showTip(t.tips.roleUpdated, 'success');
     } else {
       setRoles([...roles, { id: Math.random().toString(36).substr(2, 9), ...roleForm }]);
+      showTip(t.tips.roleAdded, 'success');
     }
     setRoleModal({ open: false });
   };
 
-  const deleteRole = (id: string) => {
+  const handleDeleteRole = (id: string) => {
     setRoles(roles.filter(r => r.id !== id));
+    showTip(t.tips.roleDeleted, 'info');
   };
 
   const togglePermission = (path: string) => {
@@ -192,18 +195,8 @@ const AdminSettings: React.FC = () => {
                       <td className="px-6 py-4">
                         {!role?.isSuper && (
                           <div className="flex space-x-3">
-                            <button 
-                              onClick={() => openAdminModal(admin.id)}
-                              className="text-gray-400 hover:text-amber-500 transition-colors"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button 
-                              onClick={() => deleteAdmin(admin.id)}
-                              className="text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <button onClick={() => openAdminModal(admin.id)} className="text-gray-400 hover:text-amber-500 transition-colors"><Edit2 className="w-4 h-4" /></button>
+                            <button onClick={() => handleDeleteAdmin(admin.id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         )}
                       </td>
@@ -219,29 +212,20 @@ const AdminSettings: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-300">{t.admin.roleDefs}</h2>
           <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-6 space-y-4">
             {roles.map(role => (
-              <div 
-                key={role.id} 
-                className="p-4 bg-gray-800/40 rounded-xl border border-gray-800 hover:border-amber-500/50 transition-all relative group"
-              >
+              <div key={role.id} className="p-4 bg-gray-800/40 rounded-xl border border-gray-800 hover:border-amber-500/50 transition-all relative group">
                 <div className="flex items-center justify-between mb-2">
                   <span className={`${role.isSuper ? 'text-amber-500' : 'text-blue-500'} font-bold text-sm uppercase`}>{role.name}</span>
                   {!role.isSuper && (
                     <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={() => openRoleModal(role.id)} className="text-gray-400 hover:text-white"><Edit2 className="w-3 h-3" /></button>
-                      <button onClick={() => deleteRole(role.id)} className="text-gray-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button>
+                      <button onClick={() => handleDeleteRole(role.id)} className="text-gray-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button>
                     </div>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">
-                   {role.isSuper ? (
-                     <span className="text-[10px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded">{t.admin.allAccess}</span>
-                   ) : (
-                     role.permissions.map(p => (
-                       <span key={p} className="text-[10px] bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded">
-                         {allPerms.find(item => item.path === p)?.label || p}
-                       </span>
-                     ))
-                   )}
+                   {role.isSuper ? <span className="text-[10px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded">{t.admin.allAccess}</span> : role.permissions.map(p => (
+                     <span key={p} className="text-[10px] bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded">{allPerms.find(item => item.path === p)?.label || p}</span>
+                   ))}
                 </div>
               </div>
             ))}
@@ -253,9 +237,7 @@ const AdminSettings: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setAdminModal({ open: false })} />
           <div className="relative w-full max-w-md bg-gray-900 border border-gray-800 rounded-3xl shadow-2xl p-8 animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-white mb-6">
-              {adminModal.editId ? t.admin.modals.editAdmin : t.admin.modals.addAdmin}
-            </h3>
+            <h3 className="text-xl font-bold text-white mb-6">{adminModal.editId ? t.admin.modals.editAdmin : t.admin.modals.addAdmin}</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">{t.admin.modals.fields.name}</label>
@@ -263,7 +245,7 @@ const AdminSettings: React.FC = () => {
                   type="text" 
                   value={adminForm.name}
                   onChange={e => setAdminForm({...adminForm, name: e.target.value})}
-                  className={`w-full bg-gray-800 border ${adminForm.name.trim() === '' ? 'border-red-500' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all`}
+                  className={`w-full bg-gray-800 border ${adminModal.isSubmitted && adminForm.name.trim() === '' ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.2)]' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all`}
                   placeholder="e.g. Satoshi"
                 />
               </div>
@@ -273,37 +255,20 @@ const AdminSettings: React.FC = () => {
                   type="text" 
                   value={adminForm.wallet}
                   onChange={e => setAdminForm({...adminForm, wallet: e.target.value})}
-                  className={`w-full bg-gray-800 border ${adminForm.wallet.trim() === '' ? 'border-red-500' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none font-mono focus:border-amber-500 transition-all`}
+                  className={`w-full bg-gray-800 border ${adminModal.isSubmitted && adminForm.wallet.trim() === '' ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.2)]' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none font-mono focus:border-amber-500 transition-all`}
                   placeholder="0x..."
                 />
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">{t.admin.modals.fields.role}</label>
-                <select 
-                  value={adminForm.roleId}
-                  onChange={e => setAdminForm({...adminForm, roleId: e.target.value})}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all appearance-none"
-                >
-                  {roles.map(r => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
-                  ))}
+                <select value={adminForm.roleId} onChange={e => setAdminForm({...adminForm, roleId: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all appearance-none">
+                  {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </div>
             </div>
             <div className="flex space-x-3 mt-8">
-              <button 
-                onClick={() => setAdminModal({ open: false })}
-                className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-bold text-gray-300 transition-all"
-              >
-                {t.common.cancel}
-              </button>
-              <button 
-                onClick={handleAdminSubmit}
-                disabled={!isAdminFormValid}
-                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-lg ${isAdminFormValid ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-900/20' : 'bg-gray-700 cursor-not-allowed opacity-50'}`}
-              >
-                {t.common.confirm}
-              </button>
+              <button onClick={() => setAdminModal({ open: false })} className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-bold text-gray-300 transition-all">{t.common.cancel}</button>
+              <button onClick={handleAdminSubmit} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 transition-all shadow-lg shadow-amber-900/20">{t.common.confirm}</button>
             </div>
           </div>
         </div>
@@ -313,9 +278,7 @@ const AdminSettings: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setRoleModal({ open: false })} />
           <div className="relative w-full max-w-lg bg-gray-900 border border-gray-800 rounded-3xl shadow-2xl p-8 animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-white mb-6">
-              {roleModal.editId ? t.admin.modals.editRole : t.admin.modals.addRole}
-            </h3>
+            <h3 className="text-xl font-bold text-white mb-6">{roleModal.editId ? t.admin.modals.editRole : t.admin.modals.addRole}</h3>
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">{t.admin.modals.fields.name}</label>
@@ -323,32 +286,21 @@ const AdminSettings: React.FC = () => {
                   type="text" 
                   value={roleForm.name}
                   onChange={e => setRoleForm({...roleForm, name: e.target.value})}
-                  className={`w-full bg-gray-800 border ${roleForm.name.trim() === '' ? 'border-red-500' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all`}
+                  className={`w-full bg-gray-800 border ${roleModal.isSubmitted && roleForm.name.trim() === '' ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.2)]' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all`}
                   placeholder="e.g. Risk Manager"
                 />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className={`block text-xs font-bold ${roleForm.permissions.length === 0 ? 'text-red-500' : 'text-gray-500'} uppercase`}>{t.admin.modals.fields.permissions}</label>
-                  <button 
-                    onClick={toggleAllPermissions}
-                    className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-[10px] font-black uppercase text-amber-500 transition-all"
-                  >
+                  <label className={`block text-xs font-bold ${roleModal.isSubmitted && roleForm.permissions.length === 0 ? 'text-red-500' : 'text-gray-500'} uppercase`}>{t.admin.modals.fields.permissions}</label>
+                  <button onClick={toggleAllPermissions} className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-[10px] font-black uppercase text-amber-500 transition-all">
                     <ListChecks className="w-3.5 h-3.5" />
                     <span>{roleForm.permissions.length === allPerms.length ? t.admin.modals.deselectAll : t.admin.modals.selectAll}</span>
                   </button>
                 </div>
-                <div className={`grid grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scroll border p-2 rounded-xl transition-all ${roleForm.permissions.length === 0 ? 'border-red-500/50' : 'border-transparent'}`}>
+                <div className={`grid grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scroll border p-2 rounded-xl transition-all ${roleModal.isSubmitted && roleForm.permissions.length === 0 ? 'border-red-500' : 'border-transparent'}`}>
                   {allPerms.map(p => (
-                    <button
-                      key={p.path}
-                      onClick={() => togglePermission(p.path)}
-                      className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                        roleForm.permissions.includes(p.path)
-                          ? 'bg-amber-500/10 border-amber-500/50 text-amber-500'
-                          : 'bg-gray-800/40 border-gray-800 text-gray-500 hover:border-gray-700'
-                      }`}
-                    >
+                    <button key={p.path} onClick={() => togglePermission(p.path)} className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all ${roleForm.permissions.includes(p.path) ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-gray-800/40 border-gray-800 text-gray-500 hover:border-gray-700'}`}>
                       <span className="text-xs font-medium">{p.label}</span>
                       {roleForm.permissions.includes(p.path) && <Check className="w-3 h-3" />}
                     </button>
@@ -357,19 +309,8 @@ const AdminSettings: React.FC = () => {
               </div>
             </div>
             <div className="flex space-x-3 mt-8">
-              <button 
-                onClick={() => setRoleModal({ open: false })}
-                className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-bold text-gray-300 transition-all"
-              >
-                {t.common.cancel}
-              </button>
-              <button 
-                onClick={handleRoleSubmit}
-                disabled={!isRoleFormValid}
-                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-lg ${isRoleFormValid ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-900/20' : 'bg-gray-700 cursor-not-allowed opacity-50'}`}
-              >
-                {t.common.confirm}
-              </button>
+              <button onClick={() => setRoleModal({ open: false })} className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-bold text-gray-300 transition-all">{t.common.cancel}</button>
+              <button onClick={handleRoleSubmit} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 transition-all shadow-lg shadow-amber-900/20">{t.common.confirm}</button>
             </div>
           </div>
         </div>

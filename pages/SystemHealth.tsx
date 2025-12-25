@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, RefreshCcw, LayoutGrid, ChevronDown, TrendingUp, TrendingDown, Minus, Info, HeartPulse } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 const SystemHealth: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, showTip } = useLanguage();
   const [selectedContract, setSelectedContract] = useState('XAUUSDC');
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const contracts = ['XAUUSDC', 'BTCUSDC', 'ETHUSDC', 'SOLUSDC'];
   
+  const handleRefresh = () => {
+    setRefreshing(true);
+    // Simulate data fetch delay
+    setTimeout(() => {
+      setRefreshKey(prev => prev + 1);
+      setRefreshing(false);
+      showTip(t.tips.success, 'success');
+    }, 800);
+  };
+
   // Trend color helper: Green > +5%, Yellow ±5%, Red < -5%
   const getTrendColorClass = (pctChange: number) => {
     if (pctChange > 5) return 'text-green-500';
@@ -76,8 +88,12 @@ const SystemHealth: React.FC = () => {
           </h1>
           <p className="text-gray-400">{t.health.subtitle}</p>
         </div>
-        <button className="flex items-center space-x-2 bg-gray-900 border border-gray-800 px-4 py-2 rounded-lg text-sm hover:border-amber-500 transition-all text-gray-300">
-          <RefreshCcw className="w-4 h-4 text-amber-500" />
+        <button 
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center space-x-2 bg-gray-900 border border-gray-800 px-4 py-2 rounded-lg text-sm hover:border-amber-500 transition-all text-gray-300 disabled:opacity-50"
+        >
+          <RefreshCcw className={`w-4 h-4 text-amber-500 ${refreshing ? 'animate-spin' : ''}`} />
           <span>{t.health.refresh}</span>
         </button>
       </div>
@@ -125,11 +141,14 @@ const SystemHealth: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right ml-4">
-                      <div className={`text-xl font-black ${metric.status === 'green' ? 'text-white' : (metric.status === 'red' ? 'text-red-500' : 'text-amber-500')}`}>
+                      <div 
+                        key={`${refreshKey}-${idx}-${mIdx}`}
+                        className={`text-xl font-black transition-all duration-500 ${metric.status === 'green' ? 'text-white' : (metric.status === 'red' ? 'text-red-500' : 'text-amber-500')} ${refreshing ? 'opacity-30 blur-[2px] translate-y-2' : 'opacity-100 blur-0 translate-y-0 animate-in slide-in-from-bottom-2'}`}
+                      >
                         {metric.value}
                       </div>
                       {metric.trend !== undefined && (
-                        <div className={`flex items-center justify-end text-[10px] font-bold ${getTrendColorClass(metric.trend)}`}>
+                        <div className={`flex items-center justify-end text-[10px] font-bold ${getTrendColorClass(metric.trend)} ${refreshing ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}`}>
                           {metric.trend > 0 ? '+' : ''}{metric.trend}%
                           {getTrendIcon(metric.trend)}
                         </div>

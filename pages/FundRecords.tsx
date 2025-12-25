@@ -13,7 +13,8 @@ import {
   Coins,
   AlertCircle,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  RotateCcw
 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
@@ -32,7 +33,7 @@ interface FundRecord {
 }
 
 const FundRecords: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, showTip } = useLanguage();
   const [mainTab, setMainTab] = useState<MainTab>('WITHDRAW');
   const [withdrawTab, setWithdrawTab] = useState<WithdrawSubTab>('PENDING');
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,7 +74,10 @@ const FundRecords: React.FC = () => {
             // Once 2 sigs reached, mark as completed in mock state after a small delay
             setTimeout(() => {
                 setWithdrawRecords(list => list.map(r => r.id === id ? { ...r, status: 'COMPLETED' } : r));
+                showTip(t.tips.withdrawApproved, 'success');
             }, 500);
+        } else {
+            showTip(t.tips.paramsSigRecorded.replace('{sigs}', newVal.toString()), 'info');
         }
         return { ...prev, [id]: newVal };
       });
@@ -81,10 +85,16 @@ const FundRecords: React.FC = () => {
     }, 1500);
   };
 
+  const handleResetSigs = (id: string) => {
+    setSigs(prev => ({ ...prev, [id]: 0 }));
+    showTip(t.tips.progressReset, 'info');
+  };
+
   const handleRejectConfirm = () => {
     if (!rejectModal) return;
     setWithdrawRecords(list => list.map(r => r.id === rejectModal.id ? { ...r, status: 'REJECTED' } : r));
     setRejectModal(null);
+    showTip(t.tips.withdrawRejected, 'info');
   };
 
   const filteredData = useMemo(() => {
@@ -303,9 +313,20 @@ const FundRecords: React.FC = () => {
                       {withdrawTab === 'PENDING' ? (
                         <>
                           <div className="flex flex-col items-end">
-                            <span className="text-[10px] text-gray-500 uppercase font-black mb-1.5 tracking-tighter">
-                              {t.funds.table.sigStatus}: {sigs[(rec as any).id] || 0}/2
-                            </span>
+                            <div className="flex items-center space-x-2 mb-1.5">
+                               {(sigs[(rec as any).id] || 0) > 0 && (
+                                 <button 
+                                   onClick={() => handleResetSigs((rec as any).id)}
+                                   className="p-1 hover:bg-amber-500/20 text-amber-500 rounded transition-colors"
+                                   title="Reset Signatures"
+                                 >
+                                   <RotateCcw className="w-3 h-3" />
+                                 </button>
+                               )}
+                               <span className="text-[10px] text-gray-500 uppercase font-black tracking-tighter">
+                                {t.funds.table.sigStatus}: {sigs[(rec as any).id] || 0}/2
+                               </span>
+                            </div>
                             <div className="w-20 h-1.5 bg-gray-800 rounded-full overflow-hidden shadow-inner">
                               <div 
                                 className={`h-full transition-all duration-700 shadow-sm ${(sigs[(rec as any).id] || 0) >= 2 ? 'bg-green-500 shadow-green-500/50' : 'bg-amber-500 shadow-amber-500/50'}`} 

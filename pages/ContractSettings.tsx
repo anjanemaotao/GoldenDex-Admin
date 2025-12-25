@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ShieldCheck, 
   Settings, 
@@ -12,7 +12,6 @@ import {
   Globe,
   Coins,
   Percent,
-  Clock,
   ArrowRightLeft,
   Users,
   RotateCcw
@@ -64,7 +63,7 @@ const OFF_CHAIN_DEFAULTS: OffChainParams = {
 };
 
 const ContractSettings: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, showTip } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabType>('ON_CHAIN');
 
   // Multi-sig states
@@ -76,7 +75,6 @@ const ContractSettings: React.FC = () => {
   const [onChainForm, setOnChainForm] = useState<OnChainParams>(ON_CHAIN_DEFAULTS);
   const [offChainForm, setOffChainForm] = useState<OffChainParams>(OFF_CHAIN_DEFAULTS);
 
-  // Requirement: Validate all fields are non-empty
   const isOnChainValid = useMemo(() => {
     return Object.values(onChainForm).every(val => val.toString().trim() !== '');
   }, [onChainForm]);
@@ -91,16 +89,33 @@ const ContractSettings: React.FC = () => {
 
     setIsSigning(true);
     setTimeout(() => {
-      if (activeTab === 'ON_CHAIN') setOnChainSigs(prev => Math.min(prev + 1, 2));
-      else setOffChainSigs(prev => Math.min(prev + 1, 2));
+      if (activeTab === 'ON_CHAIN') {
+        const nextSigs = onChainSigs + 1;
+        if (nextSigs >= 2) {
+          setOnChainSigs(0);
+          showTip(t.tips.globalParamsUpdated, "success");
+        } else {
+          setOnChainSigs(nextSigs);
+          showTip(t.tips.paramsSigRecorded.replace('{sigs}', nextSigs.toString()), "info");
+        }
+      } else {
+        const nextSigs = offChainSigs + 1;
+        if (nextSigs >= 2) {
+            setOffChainSigs(0);
+            showTip(t.tips.globalParamsUpdated, "success");
+        } else {
+            setOffChainSigs(nextSigs);
+            showTip(t.tips.paramsSigRecorded.replace('{sigs}', nextSigs.toString()), "info");
+        }
+      }
       setIsSigning(false);
-    }, 1200);
+    }, 1000);
   };
 
-  const handleExecute = () => {
-    alert(activeTab === 'ON_CHAIN' ? "Executing on-chain transaction..." : "Applying off-chain parameters...");
+  const handleResetProgress = () => {
     if (activeTab === 'ON_CHAIN') setOnChainSigs(0);
     else setOffChainSigs(0);
+    showTip(t.tips.progressReset, "info");
   };
 
   const handleRestoreDefaults = () => {
@@ -111,6 +126,7 @@ const ContractSettings: React.FC = () => {
       setOffChainForm(OFF_CHAIN_DEFAULTS);
       setOffChainSigs(0);
     }
+    showTip(t.tips.success, "info");
   };
 
   const Switch = ({ active, onClick, label, disabled }: { active: boolean, onClick: () => void, label: string, disabled?: boolean }) => (
@@ -149,8 +165,8 @@ const ContractSettings: React.FC = () => {
   const isCurrentFormValid = activeTab === 'ON_CHAIN' ? isOnChainValid : isOffChainValid;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
-      {/* Header Area */}
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20 relative">
+      
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h1 className="text-3xl font-black text-white flex items-center">
@@ -178,7 +194,6 @@ const ContractSettings: React.FC = () => {
         </div>
       </div>
 
-      {/* Risk Warning Banner & Restore Defaults */}
       <div className="flex flex-col lg:flex-row gap-4 items-stretch">
         <div className="flex-1 bg-red-900/10 border border-red-900/30 p-5 rounded-3xl flex items-start space-x-4 shadow-sm">
           <AlertTriangle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
@@ -197,7 +212,6 @@ const ContractSettings: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Configuration Forms */}
         <div className="lg:col-span-2 space-y-8">
           {activeTab === 'ON_CHAIN' ? (
             <div className="space-y-6 animate-in slide-in-from-left-4 duration-300">
@@ -234,7 +248,7 @@ const ContractSettings: React.FC = () => {
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <InputField 
-                      label={t.params.labels.insSplit} 
+                      label={t.health.labels.insRatio} 
                       unit="%"
                       value={onChainForm.insFundSplit} 
                       onChange={(v) => setOnChainForm({...onChainForm, insFundSplit: v})}
@@ -312,13 +326,23 @@ const ContractSettings: React.FC = () => {
           )}
         </div>
 
-        {/* Multi-sig Panel */}
         <div className="lg:col-span-1">
           <div className="bg-gray-900 border border-gray-800 rounded-[32px] p-8 sticky top-24 shadow-2xl">
-            <h2 className="text-lg font-bold text-white mb-6 flex items-center">
-              <ShieldCheck className="w-5 h-5 mr-2 text-amber-500" />
-              {t.params.govStatus}
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-bold text-white flex items-center">
+                <ShieldCheck className="w-5 h-5 mr-2 text-amber-500" />
+                {t.params.govStatus}
+              </h2>
+              {curSigs > 0 && (
+                <button 
+                  onClick={handleResetProgress}
+                  className="text-gray-500 hover:text-amber-500 transition-colors p-1"
+                  title="Reset Progress"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              )}
+            </div>
             
             <div className="space-y-8">
               <div className="space-y-3">
@@ -336,7 +360,6 @@ const ContractSettings: React.FC = () => {
               <div className="space-y-3 pt-4">
                 <button 
                   onClick={handleSign}
-                  // Requirement: Signature button only active if all fields filled
                   disabled={isSigning || curSigs >= 2 || !isCurrentFormValid}
                   className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center transition-all
                     ${curSigs >= 2 ? 'bg-gray-800 text-gray-500 cursor-default border border-gray-700' : 
@@ -349,17 +372,6 @@ const ContractSettings: React.FC = () => {
                 >
                   {isSigning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                   {isSigning ? t.params.requesting : t.params.reqSign}
-                </button>
-
-                <button 
-                  onClick={handleExecute}
-                  disabled={curSigs < 2}
-                  className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center
-                    ${curSigs < 2 ? 'bg-gray-900 text-gray-700 cursor-not-allowed border border-gray-800' : 'bg-green-500 hover:bg-green-600 text-white shadow-xl shadow-green-900/20 active:scale-95'}
-                  `}
-                >
-                  {curSigs >= 2 ? <CheckCircle className="w-4 h-4 mr-2" /> : null}
-                  {activeTab === 'ON_CHAIN' ? t.params.execTx : t.params.applyVals}
                 </button>
               </div>
 

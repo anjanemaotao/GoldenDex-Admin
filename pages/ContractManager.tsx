@@ -38,7 +38,7 @@ const DEFAULT_PARAMS: ParamState = {
 };
 
 const ContractManager: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, showTip } = useLanguage();
   
   const [contracts, setContracts] = useState<ContractItem[]>([
     { id: 'T001', name: '黄金', symbol: 'XAU', icon: 'https://cdn-icons-png.flaticon.com/512/2992/2992742.png' },
@@ -81,40 +81,47 @@ const ContractManager: React.FC = () => {
     if (modal.type === 'ADD') {
       const newId = `T00${contracts.length + 1}`;
       setContracts([...contracts, { ...form, id: newId }]);
+      showTip(t.tips.contractAdded, 'success');
     } else if (modal.type === 'EDIT') {
       setContracts(contracts.map(c => c.id === modal.selectedId ? { ...c, ...form } : c));
+      showTip(t.tips.contractUpdated, 'success');
     }
     setModal({ ...modal, open: false });
   };
 
   const handleRestoreDefaults = () => {
     setParamValues(DEFAULT_PARAMS);
+    showTip(t.tips.success, 'info');
   };
 
-  // Requirement 1: Check if all params are filled (non-empty)
+  const handleResetSigs = () => {
+    setSigCount(0);
+    showTip(t.tips.progressReset, 'info');
+  };
+
   const isParamsValid = useMemo(() => {
     return Object.values(paramValues).every(val => val.toString().trim() !== '');
   }, [paramValues]);
 
   const simulateSigning = () => {
-    // Requirement 1: Administrator cannot click the sign button if any param is empty
     if (!isParamsValid) return;
     
     setIsSigning(true);
     setTimeout(() => {
-      setSigCount(prev => Math.min(prev + 1, 2));
+      const newCount = Math.min(sigCount + 1, 2);
+      setSigCount(newCount);
       setIsSigning(false);
+      
+      if (newCount === 2) {
+          showTip(t.tips.paramsMultiSigComplete, 'success');
+          // Automatically close modal as per new requirement
+          setTimeout(() => setModal(prev => ({ ...prev, open: false })), 1000);
+      } else {
+          showTip(t.tips.paramsSigRecorded.replace('{sigs}', newCount.toString()), 'info');
+      }
     }, 1200);
   };
 
-  const handleCommitParams = () => {
-    if (sigCount >= 2) {
-      alert("Parameters committed successfully with multi-sig approval.");
-      setModal({ ...modal, open: false });
-    }
-  };
-
-  // Requirement 2: Fuzzy search by target name or symbol
   const filteredContracts = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return contracts;
@@ -149,7 +156,6 @@ const ContractManager: React.FC = () => {
           <p className="text-gray-400 text-sm">{t.contract.subtitle}</p>
         </div>
         <div className="flex w-full md:w-auto space-x-3">
-          {/* Requirement 2: Search UI */}
           <div className="relative flex-1 md:w-64">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
             <input 
@@ -227,7 +233,6 @@ const ContractManager: React.FC = () => {
         </table>
       </div>
 
-      {/* Info Add/Edit Modal */}
       {(modal.open && (modal.type === 'ADD' || modal.type === 'EDIT')) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setModal({ ...modal, open: false })} />
@@ -294,7 +299,6 @@ const ContractManager: React.FC = () => {
         </div>
       )}
 
-      {/* Params Detailed Modal - Requirement 1: Mandatory fields & validation */}
       {(modal.open && modal.type === 'PARAMS') && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setModal({ ...modal, open: false })} />
@@ -328,7 +332,6 @@ const ContractManager: React.FC = () => {
                     <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest truncate">{p.label}</label>
                     <span className="text-[9px] font-bold text-gray-600 uppercase flex-shrink-0 ml-2">{p.unit}</span>
                   </div>
-                  {/* Requirement 1: Red border if empty */}
                   <input 
                     type="text" 
                     value={paramValues[p.key as keyof ParamState]}
@@ -344,7 +347,14 @@ const ContractManager: React.FC = () => {
             <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center space-x-8">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">{t.contract.modals.pendingSigs}</span>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t.contract.modals.pendingSigs}</span>
+                    {sigCount > 0 && (
+                      <button onClick={handleResetSigs} className="p-1 hover:bg-white/5 rounded transition-colors text-blue-500" title="Reset Progress">
+                        <RotateCcw className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                   <div className="flex space-x-2">
                     {[1, 2].map(n => (
                       <div key={n} className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${sigCount >= n ? 'bg-green-500/20 border-green-500 text-green-500' : 'bg-gray-800 border-gray-700 text-gray-600'}`}>
@@ -361,7 +371,6 @@ const ContractManager: React.FC = () => {
               <div className="flex space-x-4 w-full md:w-auto">
                 <button 
                   onClick={simulateSigning}
-                  // Requirement 1: Disabled if any param is invalid/empty
                   disabled={isSigning || sigCount >= 2 || !isParamsValid}
                   className={`flex-1 md:flex-none px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center
                     ${sigCount >= 2 ? 'bg-gray-800 text-gray-500 cursor-default' : 
@@ -370,15 +379,6 @@ const ContractManager: React.FC = () => {
                 >
                   {isSigning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Shield className="w-4 h-4 mr-2" />}
                   {t.contract.modals.sign}
-                </button>
-                <button 
-                  onClick={handleCommitParams}
-                  disabled={sigCount < 2}
-                  className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all
-                    ${sigCount < 2 ? 'bg-gray-800 text-gray-700 cursor-not-allowed' : 'bg-green-500 hover:bg-green-400 text-white shadow-xl shadow-green-900/20 active:scale-95'}
-                  `}
-                >
-                   {t.contract.modals.submit}
                 </button>
               </div>
             </div>

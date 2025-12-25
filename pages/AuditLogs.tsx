@@ -21,11 +21,12 @@ const AuditLogs: React.FC = () => {
 
   const logs: LogRecord[] = useMemo(() => [
     // 1. Login & Reg
-    { id: 'L1', typeKey: 'adminLogin', userId: 'Root_A1', ip: '2.2.2.2', address: '0xRoot...8888', time: '2025-12-10 13:00:12', category: 'LOGIN', meta: { ip: '2.2.2.2' } },
     { id: 'L2', typeKey: 'login', userId: 'U565682', ip: '92.11.0.4', address: '0xs4d5ad...88e1', time: '2025-12-10 12:58:30', category: 'LOGIN', meta: { ip: '92.11.0.4' } },
     { id: 'L3', typeKey: 'reg', userId: 'U992233', ip: '45.12.33.2', address: '0x321abc...77d2', time: '2025-12-10 12:55:00', category: 'LOGIN', meta: { net: 'Arbitrum' } },
     
     // 2. Funds
+    { id: 'ID1', typeKey: 'insDeposit', userId: 'Root_A1', ip: '0.0.0.0', address: '0xRoot...8888', time: '2025-12-10 13:10:00', category: 'FUNDS', meta: { id: 'D223', net: 'Arbitrum', qty: '23.42' } },
+    { id: 'ID2', typeKey: 'insWithdraw', userId: 'Root_A1', ip: '0.0.0.0', address: '0xRoot...8888', time: '2025-12-10 13:15:00', category: 'FUNDS', meta: { id: 'D223', net: 'Arbitrum', qty: '23.42' } },
     { id: 'F1', typeKey: 'deposit', userId: 'U123445', ip: '1.2.3.4', address: '0xabc999...f012', time: '2025-12-10 12:45:00', category: 'FUNDS', meta: { id: 'D223', qty: '23.42', net: 'Arbitrum', status: t.funds.statusText.completed } },
     { id: 'F2', typeKey: 'withdraw', userId: 'U565682', ip: 'internal', address: '0xs4d5ad...88e1', time: '2025-12-10 12:31:19', category: 'FUNDS', meta: { id: 'W223', qty: '23.42', net: 'Arbitrum', status: t.funds.statusText.completed } },
     
@@ -39,12 +40,14 @@ const AuditLogs: React.FC = () => {
     { id: 'P2', typeKey: 'posChange', userId: 'U565682', ip: 'internal', address: '0xs4d...5ad', time: '2025-12-10 11:35:00', category: 'POS', meta: { id: 'P223', sym: 'XAUUSDC', side: t.market.long, lev: '20', qty: '23.42', price: '2234.22' } },
     { id: 'P4', typeKey: 'liq', userId: 'U443322', ip: 'system', address: '0x3344...eeff', time: '2025-12-10 11:30:11', category: 'POS', meta: { id: 'P223', sym: 'XAUUSDC', side: t.market.long, lev: '20', price: '3423.23', qty: '23.42', fee: '234.22', keeper: '0x23k3...2ikss' } },
     
-    // 5. Risk (Insurance Fund and Oracle)
+    // 5. Risk
+    { id: 'UF1', typeKey: 'userFreeze', userId: 'Root_Admin', ip: 'internal', address: '0x71C...76F', time: '2025-12-10 11:20:00', category: 'RISK', meta: { uid: 'U12344', address: '0x23k2...l23k2', reason: '异常操作' } },
+    { id: 'UU1', typeKey: 'userUnfreeze', userId: 'Root_Admin', ip: 'internal', address: '0x71C...76F', time: '2025-12-10 11:25:00', category: 'RISK', meta: { uid: 'U12344', address: '0x23k2...l23k2', reason: '异常解除' } },
     { id: 'R1', typeKey: 'riskMr', userId: 'U100255', ip: '127.0.0.1', address: '0x8a2...3211', time: '2025-12-10 11:15:00', category: 'RISK', meta: { sym: 'XAUUSDC', id: 'P233', mr: '84', limit: '80' } },
     { id: 'R2', typeKey: 'riskPrice', userId: 'Oracle', ip: 'oracle', address: '0xFeed...Abc1', time: '2025-12-10 11:10:00', category: 'RISK', meta: { sym: 'XAUUSDC', spread: '3.3', limit: '1' } },
     { id: 'R3', typeKey: 'riskLimit', userId: 'U10244', ip: '155.23.4.1', address: '0xabc...111', time: '2025-12-10 11:05:00', category: 'RISK', meta: { type: t.params.labels.orderFreq } },
     
-    // 6. Gov (Insurance Fund)
+    // 6. Gov
     { id: 'G1', typeKey: 'ins', userId: 'Insurance Fund', ip: 'contract', address: '0xVault...Ins1', time: '2025-12-10 10:45:11', category: 'GOV', meta: { delta: '+250.2', source: t.funds.recharge } },
     { id: 'G2', typeKey: 'params', userId: 'Root_A1', ip: '0.0.0.0', address: '0xRoot...8888', time: '2025-12-10 10:30:00', category: 'GOV', meta: { key: 'XAUUSDC ' + t.contract.params.maxLeverage, old: '2.4%', new: '2.5%' } },
   ], [t.logs.types, t.funds.statusText, t.market, t.params.labels.orderFreq, t.funds.recharge, t.contract.params.maxLeverage]);
@@ -62,10 +65,7 @@ const AuditLogs: React.FC = () => {
 
   const filteredLogs = useMemo(() => {
     return logs.filter(log => {
-        // Category filter
         if (catFilter !== 'ALL' && log.category !== catFilter) return false;
-        
-        // Search query
         const search = searchQuery.toLowerCase();
         const typeStr = (t.logs.types as any)[log.typeKey]?.toLowerCase() || '';
         const matchesSearch = log.userId.toLowerCase().includes(search) ||
@@ -73,12 +73,9 @@ const AuditLogs: React.FC = () => {
                             log.ip.toLowerCase().includes(search) ||
                             typeStr.includes(search);
         if (!matchesSearch) return false;
-
-        // Date range filter
         const logDate = log.time.split(' ')[0];
         if (dateRange.start && logDate < dateRange.start) return false;
         if (dateRange.end && logDate > dateRange.end) return false;
-
         return true;
     });
   }, [logs, searchQuery, catFilter, dateRange, t.logs.types]);
@@ -117,7 +114,6 @@ const AuditLogs: React.FC = () => {
           />
         </div>
 
-        {/* Date Range Filter */}
         <div className="flex items-center bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 space-x-3 group hover:border-gray-700 transition-all">
           <Calendar className="w-4 h-4 text-gray-500 group-hover:text-amber-500 transition-colors" />
           <div className="flex items-center space-x-2">

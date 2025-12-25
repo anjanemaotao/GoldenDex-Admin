@@ -8,7 +8,7 @@ interface EnhancedAlert extends Omit<AlertType, 'type' | 'description'> {
 }
 
 const AlertCenter: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, showTip } = useLanguage();
   const [activeTab, setActiveTab] = useState<'ALL' | 'UNREAD'>('ALL');
   
   // Filtering state
@@ -58,10 +58,14 @@ const AlertCenter: React.FC = () => {
 
   const handleMarkAsRead = (id: string) => {
     setAlerts(prev => prev.map(a => a.id === id ? { ...a, isRead: true } : a));
+    showTip(t.tips.success, 'success');
   };
 
   const handleMarkAllAsRead = () => {
+    const hasUnread = alerts.some(a => !a.isRead);
+    if (!hasUnread) return;
     setAlerts(prev => prev.map(a => ({ ...a, isRead: true })));
+    showTip(t.tips.success, 'success');
   };
 
   const alertTypes = useMemo(() => [

@@ -1,3 +1,4 @@
+
 export const translations = {
   en: {
     nav: {
@@ -6,7 +7,7 @@ export const translations = {
       market: "Market Watch",
       risk: "Risk Center",
       health: "System Health",
-      alerts: "Alerts",
+      alerts: "Alarm Center",
       users: "Users",
       funds: "Funds",
       logs: "Log Audit",
@@ -55,6 +56,27 @@ export const translations = {
       none: "None",
       address: "Address",
       levels: { LOW: "LOW", MEDIUM: "MEDIUM", HIGH: "HIGH" }
+    },
+    tips: {
+      success: "Operation Successful",
+      roleAdded: "New role created successfully.",
+      roleUpdated: "Role permissions updated.",
+      roleDeleted: "Role removed from registry.",
+      adminAdded: "Administrator authorized successfully.",
+      adminUpdated: "Administrator details updated.",
+      adminDeleted: "Administrative access revoked.",
+      rechargeSuccess: "Insurance fund recharged successfully.",
+      withdrawMultiSigComplete: "Withdrawal multi-sig complete. Assets transferred.",
+      userFrozen: "User account has been frozen.",
+      userUnfrozen: "User account access restored.",
+      withdrawApproved: "Withdrawal authorized (Multi-sig 2/2).",
+      withdrawRejected: "Withdrawal request declined.",
+      contractAdded: "New trading pair added to registry.",
+      contractUpdated: "Contract metadata updated.",
+      paramsMultiSigComplete: "Contract parameters updated via multi-sig.",
+      paramsSigRecorded: "Administrator signature recorded ({sigs}/2).",
+      globalParamsUpdated: "Global parameters successfully synchronized.",
+      progressReset: "Governance progress has been reset."
     },
     admin: {
       title: "Admin Management",
@@ -167,7 +189,19 @@ export const translations = {
       liqValue: "Liq. Value",
       scatterTitle: "Liquidation Price & Leverage Distribution",
       scatterDesc: "Visualization of risk concentration across leverage tiers.",
-      nominalValue: "Notional"
+      nominalValue: "Notional",
+      recharge: "Recharge",
+      withdraw: "Withdraw",
+      modals: {
+        rechargeTitle: "Insurance Fund Recharge",
+        withdrawTitle: "Insurance Fund Withdraw",
+        chain: "Select Chain",
+        token: "Select Token",
+        walletBalance: "Wallet Balance",
+        fundBalance: "Fund Balance",
+        multiSigInfo: "Withdrawals require at least 2 signatures.",
+        resetSig: "Reset Signature Progress"
+      }
     },
     health: {
       title: "System Health",
@@ -204,7 +238,7 @@ export const translations = {
       }
     },
     alerts: {
-      title: "Alert Center",
+      title: "Alarm Center",
       subtitle: "Critical system notifications and risk triggers.",
       markRead: "Ack All",
       allMsgs: "All Notifications",
@@ -238,8 +272,11 @@ export const translations = {
       verified: "Normal",
       freezeTitle: "Freeze Account",
       unfreezeTitle: "Restore Account",
-      freezeDesc: "Are you sure you want to freeze {uid}? Trading and withdrawals will be disabled.",
-      unfreezeDesc: "Restore access for {uid}? Normal trading functionality will resume."
+      reasonLabel: "Action Reason",
+      reasonPlaceholder: "Provide a reason...",
+      lastReason: "Last Reason",
+      freezeDesc: "Are you sure you want to freeze {uid}? The user will be unable to log in.",
+      unfreezeDesc: "Restore access for {uid}? User will resume normal.",
     },
     funds: {
       title: "Fund Records",
@@ -374,10 +411,9 @@ export const translations = {
       },
       types: {
         login: "User Login",
-        adminLogin: "Admin Login",
         reg: "User Registration",
-        deposit: "Recharge Log",
-        withdraw: "Withdrawal Log",
+        deposit: "Vault Deposit",
+        withdraw: "Vault Withdraw",
         orderCreate: "Order Create",
         orderCancel: "Order Cancel",
         trade: "Trade Executed",
@@ -389,14 +425,17 @@ export const translations = {
         riskLimit: "Rate Limit Hit",
         freeze: "Status Change",
         ins: "Ins. Change",
-        params: "Param Change"
+        params: "Param Change",
+        insDeposit: "Insurance Fund Recharge",
+        insWithdraw: "Insurance Fund Withdraw",
+        userFreeze: "User Freeze",
+        userUnfreeze: "User Unfreeze"
       },
       details: {
-        adminLogin: "Login IP: {ip}",
         login: "Login IP: {ip}",
         reg: "New account registered on network: {net}.",
-        deposit: "User initiated deposit, ID: {id}, Chain: {net}, Qty: {qty} USDC.",
-        withdraw: "User initiated withdrawal, ID: {id}, Qty: {qty}, Network: {net}, Status: {status}.",
+        deposit: "User deposited into vault, ID: {id}, Chain: {net}, Qty: {qty} USDC.",
+        withdraw: "User withdrew from vault, ID: {id}, Qty: {qty}, Network: {net}, Status: {status}.",
         orderCreate: "User created order, ID: {id}, Contract: {sym}, Side: {side}, Leverage: {lev}x, Qty: {qty}, Price: {price}, Type: {type}, Fee: {fee}.",
         orderCancel: "User canceled order, Order ID: {id}.",
         trade: "User order executed, Order ID: {id}, Contract: {sym}, Side: {side}, Qty: {qty}, Price: {price}, Type: {type}, PnL: {pnl}, Fee: {fee}, Time: {time}.",
@@ -408,7 +447,11 @@ export const translations = {
         riskLimit: "Rate limit triggered, Type: {type}.",
         freeze: "Admin {action} account {uid}({address}), Reason: {reason}.",
         ins: "Ins. Fund change: {delta} USDC, Source: {source}.",
-        params: "Admin updated parameter: {key} ({old} -> {new})."
+        params: "Admin updated parameter: {key} ({old} -> {new}).",
+        insDeposit: "Admin recharged insurance fund, ID: {id}, Chain: {net}, Qty: {qty} USDC.",
+        insWithdraw: "Admin withdrew from insurance fund, ID: {id}, Chain: {net}, Qty: {qty} USDC.",
+        userFreeze: "Freeze account {uid}({address}), Reason: {reason}.",
+        userUnfreeze: "Unfreeze account {uid}({address}), Reason: {reason}."
       }
     },
     params: {
@@ -459,7 +502,7 @@ export const translations = {
       market: "市场监控",
       risk: "风控中心",
       health: "系统健康",
-      alerts: "预警中心",
+      alerts: "告警中心",
       users: "用户管理",
       funds: "资金记录",
       logs: "日志审计",
@@ -508,6 +551,27 @@ export const translations = {
       none: "无",
       address: "地址",
       levels: { LOW: "低", MEDIUM: "中", HIGH: "高" }
+    },
+    tips: {
+      success: "操作成功",
+      roleAdded: "新角色创建成功。",
+      roleUpdated: "角色权限已更新。",
+      roleDeleted: "角色已从注册表中移除。",
+      adminAdded: "管理员授权成功。",
+      adminUpdated: "管理员信息已更新。",
+      adminDeleted: "管理权限已撤销。",
+      rechargeSuccess: "保险基金充值成功。",
+      withdrawMultiSigComplete: "提现多签完成，资产已划转。",
+      userFrozen: "用户账户已冻结。",
+      userUnfrozen: "用户账户访问权限已恢复。",
+      withdrawApproved: "提现授权已通过 (多签 2/2)。",
+      withdrawRejected: "提现申请已被驳回。",
+      contractAdded: "新交易对已添加到注册表。",
+      contractUpdated: "合约元数据已更新。",
+      paramsMultiSigComplete: "合约参数已通过多签更新。",
+      paramsSigRecorded: "管理员签名已记录 ({sigs}/2)。",
+      globalParamsUpdated: "全局参数同步成功。",
+      progressReset: "治理进度已重置。"
     },
     admin: {
       title: "管理员管理",
@@ -620,7 +684,19 @@ export const translations = {
       liqValue: "强平价值",
       scatterTitle: "强平价格与杠杆分布",
       scatterDesc: "可视化高杠杆仓位的风险聚集程度。",
-      nominalValue: "名义价值"
+      nominalValue: "名义价值",
+      recharge: "充值",
+      withdraw: "提取",
+      modals: {
+        rechargeTitle: "保险基金充值",
+        withdrawTitle: "保险基金提取",
+        chain: "选择链",
+        token: "选择币种",
+        walletBalance: "钱包余额",
+        fundBalance: "保险基金余额",
+        multiSigInfo: "保险基金提现需要至少 2 名管理员签名。",
+        resetSig: "重置签名进度"
+      }
     },
     health: {
       title: "系统健康",
@@ -657,7 +733,7 @@ export const translations = {
       }
     },
     alerts: {
-      title: "预警中心",
+      title: "告警中心",
       subtitle: "关键系统通知及风控触发记录。",
       markRead: "一键已读",
       allMsgs: "全部通知",
@@ -691,8 +767,11 @@ export const translations = {
       verified: "正常",
       freezeTitle: "冻结账户",
       unfreezeTitle: "恢复账户",
-      freezeDesc: "确认冻结 {uid} 吗？该用户将无法进行交易和提现。",
-      unfreezeDesc: "确认恢复 {uid} 的访问权限吗？用户将恢复正常交易功能。"
+      reasonLabel: "操作原因",
+      reasonPlaceholder: "请输入原因...",
+      lastReason: "最近原因",
+      freezeDesc: "确认冻结 {uid} 吗？该用户将无法登录。",
+      unfreezeDesc: "确认恢复 {uid} 的访问权限吗？用户将恢复正常。",
     },
     funds: {
       title: "资金记录",
@@ -827,10 +906,9 @@ export const translations = {
       },
       types: {
         login: "用户登录",
-        adminLogin: "管理员登录",
         reg: "用户注册",
-        deposit: "充值日志",
-        withdraw: "提现日志",
+        deposit: "金库充值",
+        withdraw: "金库提现",
         orderCreate: "订单创建",
         orderCancel: "订单取消",
         trade: "成交日志",
@@ -842,14 +920,17 @@ export const translations = {
         riskLimit: "频率限制",
         freeze: "状态变更",
         ins: "基金变动",
-        params: "参数变更"
+        params: "参数变更",
+        insDeposit: "保险基金充值",
+        insWithdraw: "保险基金提取",
+        userFreeze: "用户冻结",
+        userUnfreeze: "用户解冻"
       },
       details: {
-        adminLogin: "登录 IP: {ip}",
         login: "登录 IP: {ip}",
         reg: "新账户通过网络 {net} 注册。",
-        deposit: "用户发起充值，充值 ID: {id}, 链: {net}, 数量: {qty} USDC。",
-        withdraw: "用户发起提现，提现 ID: {id}, 数量: {qty}, 网络: {net}, 状态: {status}。",
+        deposit: "用户向金库充值，充值 ID: {id}, 链: {net}, 数量: {qty} USDC。",
+        withdraw: "用户从金库提现，提现 ID: {id}, 数量: {qty}, 网络: {net}, 状态: {status}。",
         orderCreate: "用户创建委托单，订单 ID: {id}, 合约: {sym}, 方向: {side}, 杠杆倍数: {lev}x, 数量: {qty}, 价格: {price}, 类型: {type}、交易费: {fee}。",
         orderCancel: "用户取消订单，订单 ID: {id}。",
         trade: "用户订单成交，订单 ID: {id}, 合约: {sym}, 方向: {side}, 数量: {qty}, 价格: {price}, 类型: {type}、已实现盈亏：{pnl}、交易费：{fee}, 成交时间: {time}。",
@@ -861,7 +942,11 @@ export const translations = {
         riskLimit: "用户触发频率限制，类型: {type}。",
         freeze: "管理员{action}账户 {uid}({address})，原因：{reason}。",
         ins: "保险基金变动: {delta} USDC, 来源: {source}。",
-        params: "管理员更新参数: {key} ({old} -> {new})。"
+        params: "管理员更新参数: {key} ({old} -> {new})。",
+        insDeposit: "管理员向保险基金充值，充值 ID: {id}, 链: {net}, 数量: {qty} USDC。",
+        insWithdraw: "管理员从保险基金提现，提现 ID: {id}, 数量: {qty} USDC。",
+        userFreeze: "冻结账户 {uid}({address})，原因：{reason}。",
+        userUnfreeze: "解冻账户 {uid}({address})，原因：{reason}。"
       }
     },
     params: {
@@ -913,7 +998,7 @@ export const translations = {
       market: "市場監控",
       risk: "風控中心",
       health: "系統健康",
-      alerts: "預警中心",
+      alerts: "告警中心",
       users: "用戶管理",
       funds: "資金記錄",
       logs: "日誌審計",
@@ -962,6 +1047,27 @@ export const translations = {
       none: "無",
       address: "地址",
       levels: { LOW: "低", MEDIUM: "中", HIGH: "高" }
+    },
+    tips: {
+      success: "操作成功",
+      roleAdded: "新角色創建成功。",
+      roleUpdated: "角色權限已更新。",
+      roleDeleted: "角色已從註冊表中移除。",
+      adminAdded: "管理員授權成功。",
+      adminUpdated: "管理員信息已更新。",
+      adminDeleted: "管理權限已撤銷。",
+      rechargeSuccess: "保險基金充值成功。",
+      withdrawMultiSigComplete: "提現多簽完成，資產已劃轉。",
+      userFrozen: "用戶帳戶已凍結。",
+      userUnfrozen: "用戶帳戶訪問權限已恢復。",
+      withdrawApproved: "提現授權已通過 (多簽 2/2)。",
+      withdrawRejected: "提現申請已被駁回。",
+      contractAdded: "新交易對已添加到註冊表。",
+      contractUpdated: "合約元數據已更新。",
+      paramsMultiSigComplete: "合約參數已通過多簽更新。",
+      paramsSigRecorded: "管理員簽名已記錄 ({sigs}/2)。",
+      globalParamsUpdated: "全局參數同步成功。",
+      progressReset: "治理進度已重置。"
     },
     admin: {
       title: "管理員管理",
@@ -1074,7 +1180,19 @@ export const translations = {
       liqValue: "強平價值",
       scatterTitle: "強平價格與槓桿分布",
       scatterDesc: "視覺化高槓桿倉位的風險聚集程度。",
-      nominalValue: "名義價值"
+      nominalValue: "名義價值",
+      recharge: "充值",
+      withdraw: "提取",
+      modals: {
+        rechargeTitle: "保險基金充值",
+        withdrawTitle: "保險基金提取",
+        chain: "選擇鏈",
+        token: "選擇幣種",
+        walletBalance: "錢包餘額",
+        fundBalance: "保險基金餘額",
+        multiSigInfo: "保險基金提現需要至少 2 名管理員簽名。",
+        resetSig: "重置簽名進度"
+      }
     },
     health: {
       title: "系統健康",
@@ -1089,7 +1207,7 @@ export const translations = {
         insRatio: "保險基金比例",
         insRatioDesc: "保險基金餘額佔總持倉名義價值的比例。",
         avgMr: "全平台平均 MR",
-        avgMrDesc: "全平台所有用戶的加權平均保證金率。",
+        avgMrDesc: "全平台所有用戶加權平均保證金率。",
         liqRate: "強平率",
         liqRateDesc: "目前處於強平流程中的倉位佔比。",
         vaultDep: "金庫深度",
@@ -1111,7 +1229,7 @@ export const translations = {
       }
     },
     alerts: {
-      title: "預警中心",
+      title: "告警中心",
       subtitle: "關鍵系統通知及風控觸發記錄。",
       markRead: "一鍵已讀",
       allMsgs: "全部通知",
@@ -1145,8 +1263,11 @@ export const translations = {
       verified: "正常",
       freezeTitle: "凍結帳戶",
       unfreezeTitle: "恢復帳戶",
-      freezeDesc: "確認凍結 {uid} 嗎？該用戶將無法進行交易和提現。",
-      unfreezeDesc: "確認恢復 {uid} 的訪問權限嗎？用戶將恢復正常交易功能。"
+      reasonLabel: "操作原因",
+      reasonPlaceholder: "請輸入原因...",
+      lastReason: "最近原因",
+      freezeDesc: "確認凍結 {uid} 嗎？該用戶將無法登錄。",
+      unfreezeDesc: "確認恢復 {uid} 的訪問權限嗎？用戶將恢復正常。",
     },
     funds: {
       title: "資金記錄",
@@ -1161,8 +1282,8 @@ export const translations = {
         failed: "已失敗"
       },
       stats: {
-        totalCount: "充值總筆數",
-        totalAmount: "充值總金額",
+        totalCount: "充值总笔数",
+        totalAmount: "充值总金额",
         pendingCount: "待簽筆數",
         pendingAmount: "待簽金額",
         processingCount: "出金中筆數",
@@ -1232,7 +1353,7 @@ export const translations = {
         minOrderQty: "最小下單數量",
         minNotional: "最小名義價值",
         maxMarketQty: "市價單單筆最大數量",
-        maxLimitQty: "限價單價格上限比例",
+        maxLimitQty: "限價單价格上限比例",
         maxOpenOrders: "最大掛單數量",
         minOrderPrice: "最小下單價格",
         minPriceFluc: "最小價格波動",
@@ -1249,7 +1370,7 @@ export const translations = {
           minOrderQty: "該合約單筆限價訂單的最小下單數量，開倉合約數量不得少於該值",
           minNotional: "該合約訂單的最小名义價值，開倉名义價值不得少於該值。",
           maxMarketQty: "該合约單筆市價訂單的最大下單合約數量",
-          maxLimitQty: "該合約單筆限價訂單的最大下單合約數量",
+          maxLimitQty: "該合約單笔限價訂單的最大下單合約數量",
           maxOpenOrders: "訂單數量包含每個獨立倉位的未平倉限價單",
           minOrderPrice: "合約小數點最大位數",
           minPriceFluc: "該合約價格變動的最小單位",
@@ -1281,10 +1402,9 @@ export const translations = {
       },
       types: {
         login: "用戶登錄",
-        adminLogin: "管理員登錄",
         reg: "用戶註冊",
-        deposit: "充值日誌",
-        withdraw: "提現日誌",
+        deposit: "金庫充值",
+        withdraw: "金庫提現",
         orderCreate: "訂單創建",
         orderCancel: "訂單取消",
         trade: "成交日誌",
@@ -1296,14 +1416,17 @@ export const translations = {
         riskLimit: "頻率限制",
         freeze: "狀態變更",
         ins: "基金變動",
-        params: "參數變更"
+        params: "參數變更",
+        insDeposit: "保險基金充值",
+        insWithdraw: "保險基金提取",
+        userFreeze: "用戶凍結",
+        userUnfreeze: "用戶解凍"
       },
       details: {
-        adminLogin: "登錄 IP: {ip}",
         login: "登錄 IP: {ip}",
         reg: "新帳戶通過網絡 {net} 註冊。",
-        deposit: "用戶發起充值，充值 ID: {id}, 鏈: {net}, 數量: {qty} USDC。",
-        withdraw: "用戶發起提現，提現 ID: {id}, 數量: {qty}, 網絡: {net}, 狀態: {status}。",
+        deposit: "用戶向金庫充值，充值 ID: {id}, 鏈: {net}, 數量: {qty} USDC。",
+        withdraw: "用戶从金庫提現，提現 ID: {id}, 數量: {qty}, 網絡: {net}, 狀態: {status}。",
         orderCreate: "用戶創建委託單，訂單 ID: {id}, 合約: {sym}, 方向: {side}, 槓桿倍數: {lev}x, 數量: {qty}, 價格: {price}, 類型: {type}、交易費: {fee}。",
         orderCancel: "用戶取消訂單，訂單 ID: {id}。",
         trade: "用戶訂單成交，訂單 ID: {id}, 合約: {sym}, 方向: {side}, 數量: {qty}, 價格: {price},類型: {type}、已實現盈虧：{pnl}、交易費：{fee}, 成交時間: {time}。",
@@ -1315,7 +1438,11 @@ export const translations = {
         riskLimit: "用戶觸發頻率限制，類型: {type}。",
         freeze: "管理員{action}帳戶 {uid}({address})，原因：{reason}。",
         ins: "基金變動: {delta} USDC, 來源: {source}。",
-        params: "管理員更新參數: {key} ({old} -> {new})。"
+        params: "管理員更新參數: {key} ({old} -> {new})。",
+        insDeposit: "管理員向保險基金充值，充值 ID: {id}, 鏈: {net}, 數量: {qty} USDC。",
+        insWithdraw: "管理員從保險基金提現，提現 ID: {id}, 數量: {qty} USDC。",
+        userFreeze: "凍結帳戶 {uid}({address})，原因：{reason}。",
+        userUnfreeze: "解凍帳戶 {uid}({address})，原因：{reason}。"
       }
     },
     params: {
@@ -1344,7 +1471,7 @@ export const translations = {
         vaultDeposit: "Vault 充值開關 (Arb)",
         vaultWithdraw: "Vault 提現開关 (Arb)",
         liqPenalty: "強平罰金比例",
-        insSplit: "罰金進保險基金比例",
+        insSplit: "罰金进保險基金比例",
         keeperSplit: "罰金進 Keeper 比例",
         trading: "全局交易開關",
         reg: "註冊開關",
