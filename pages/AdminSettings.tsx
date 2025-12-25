@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { UserPlus, Shield, Trash2, Edit2, ShieldAlert, X, Check, ListChecks, ShieldCheck } from 'lucide-react';
+import { UserPlus, Shield, Trash2, Edit2, ShieldAlert, X, Check, ListChecks, ShieldCheck, ChevronRight, LayoutGrid } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 interface Role {
@@ -16,13 +16,19 @@ interface Admin {
   roleId: string;
 }
 
+interface PermissionItem {
+  id: string;
+  label: string;
+  category: string;
+}
+
 const AdminSettings: React.FC = () => {
   const { t, showTip } = useLanguage();
 
   const [roles, setRoles] = useState<Role[]>([
     { id: 'role-1', name: t.admin.roles.super, isSuper: true, permissions: ['*'] },
-    { id: 'role-2', name: t.admin.roles.risk, permissions: ['/dashboard', '/market', '/risk', '/health'] },
-    { id: 'role-3', name: t.admin.roles.finance, permissions: ['/funds', '/logs'] },
+    { id: 'role-2', name: t.admin.roles.risk, permissions: ['/dashboard', '/market', 'market:view_pos', '/risk', 'risk:recharge'] },
+    { id: 'role-3', name: t.admin.roles.finance, permissions: ['/funds', 'funds:view_deposits', '/logs'] },
   ]);
 
   const [admins, setAdmins] = useState<Admin[]>([
@@ -37,19 +43,99 @@ const AdminSettings: React.FC = () => {
   const [adminForm, setAdminForm] = useState({ name: '', wallet: '', roleId: 'role-2' });
   const [roleForm, setRoleForm] = useState<{ name: string, permissions: string[] }>({ name: '', permissions: [] });
 
-  const allPerms = [
-    { path: '/dashboard', label: t.nav.dashboard },
-    { path: '/admin', label: t.nav.admin },
-    { path: '/market', label: t.nav.market },
-    { path: '/risk', label: t.nav.risk },
-    { path: '/health', label: t.nav.health },
-    { path: '/alerts', label: t.nav.alerts },
-    { path: '/users', label: t.nav.users },
-    { path: '/funds', label: t.nav.funds },
-    { path: '/logs', label: t.nav.logs },
-    { path: '/contracts', label: t.nav.contractManager },
-    { path: '/settings', label: t.nav.params },
-  ];
+  // Categorized Permission List for Finer Granularity
+  const permissionGroups = useMemo(() => [
+    {
+      title: t.nav.dashboard,
+      perms: [{ id: '/dashboard', label: t.common.view }]
+    },
+    {
+      title: t.nav.admin,
+      perms: [
+        { id: '/admin', label: t.common.view },
+        { id: 'admin:add_role', label: t.admin.addRoleBtn },
+        { id: 'admin:edit_role', label: t.admin.modals.editRole },
+        { id: 'admin:delete_role', label: '删除角色' },
+        { id: 'admin:add_admin', label: t.admin.addBtn },
+        { id: 'admin:edit_admin', label: t.admin.modals.editAdmin },
+        { id: 'admin:delete_admin', label: '删除管理员' },
+      ]
+    },
+    {
+      title: t.nav.market,
+      perms: [
+        { id: '/market', label: t.common.view },
+        { id: 'market:view_pos', label: t.market.openPositions },
+        { id: 'market:view_history', label: t.market.closedHistory },
+      ]
+    },
+    {
+      title: t.nav.risk,
+      perms: [
+        { id: '/risk', label: t.common.view },
+        { id: 'risk:recharge', label: '保险基金充值' },
+        { id: 'risk:withdraw', label: '保险基金提取' },
+      ]
+    },
+    {
+      title: t.nav.health,
+      perms: [
+        { id: '/health', label: t.common.view },
+      ]
+    },
+    {
+      title: t.nav.alerts,
+      perms: [
+        { id: '/alerts', label: t.common.view },
+        { id: 'alerts:ack', label: t.alerts.ack },
+        { id: 'alerts:read_all', label: t.alerts.markRead },
+      ]
+    },
+    {
+      title: t.nav.users,
+      perms: [
+        { id: '/users', label: t.common.view },
+        { id: 'users:freeze', label: t.users.freezeTitle },
+        { id: 'users:unfreeze', label: t.users.unfreezeTitle },
+      ]
+    },
+    {
+      title: t.nav.funds,
+      perms: [
+        { id: '/funds', label: t.common.view },
+        { id: 'funds:view_deposits', label: t.funds.recharge },
+        { id: 'funds:view_withdrawals', label: t.funds.withdrawals },
+        { id: 'funds:approve_withdraw', label: '提现审核' },
+      ]
+    },
+    {
+      title: t.nav.contractManager,
+      perms: [
+        { id: '/contracts', label: t.common.view },
+        { id: 'contracts:add', label: t.contract.addBtn },
+        { id: 'contracts:edit', label: t.contract.editBtn },
+        { id: 'contracts:params', label: t.contract.setParams },
+      ]
+    },
+    {
+      title: t.nav.params,
+      perms: [
+        { id: '/settings', label: t.common.view },
+        { id: 'params:onchain_view', label: '查看链上多签参数' },
+        { id: 'params:onchain_sign', label: t.params.onChainTab + '签名' },
+        { id: 'params:offchain_view', label: '查看链下多签参数' },
+        { id: 'params:offchain_sign', label: t.params.offChainTab + '签名' },
+      ]
+    },
+    {
+      title: t.nav.logs,
+      perms: [{ id: '/logs', label: t.common.view }]
+    },
+  ], [t]);
+
+  const allPermIds = useMemo(() => 
+    permissionGroups.flatMap(g => g.perms.map(p => p.id)), 
+  [permissionGroups]);
 
   const openAdminModal = (editId?: string) => {
     if (editId) {
@@ -93,8 +179,15 @@ const AdminSettings: React.FC = () => {
 
   const handleRoleSubmit = () => {
     setRoleModal(prev => ({ ...prev, isSubmitted: true }));
-    const isValid = roleForm.name.trim() !== '' && roleForm.permissions.length > 0;
-    if (!isValid) return;
+    const isNameValid = roleForm.name.trim() !== '';
+    const arePermsValid = roleForm.permissions.length > 0;
+
+    if (!isNameValid) return;
+    
+    if (!arePermsValid) {
+      showTip(t.tips.selectPerms, 'info');
+      return;
+    }
     
     if (roleModal.editId) {
       setRoles(roles.map(r => r.id === roleModal.editId ? { ...r, ...roleForm } : r));
@@ -111,20 +204,20 @@ const AdminSettings: React.FC = () => {
     showTip(t.tips.roleDeleted, 'info');
   };
 
-  const togglePermission = (path: string) => {
+  const togglePermission = (id: string) => {
     setRoleForm(prev => ({
       ...prev,
-      permissions: prev.permissions.includes(path) 
-        ? prev.permissions.filter(p => p !== path) 
-        : [...prev.permissions, path]
+      permissions: prev.permissions.includes(id) 
+        ? prev.permissions.filter(p => p !== id) 
+        : [...prev.permissions, id]
     }));
   };
 
   const toggleAllPermissions = () => {
-    if (roleForm.permissions.length === allPerms.length) {
+    if (roleForm.permissions.length === allPermIds.length) {
       setRoleForm(prev => ({ ...prev, permissions: [] }));
     } else {
-      setRoleForm(prev => ({ ...prev, permissions: allPerms.map(p => p.path) }));
+      setRoleForm(prev => ({ ...prev, permissions: [...allPermIds] }));
     }
   };
 
@@ -222,10 +315,22 @@ const AdminSettings: React.FC = () => {
                     </div>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-1 mt-2">
-                   {role.isSuper ? <span className="text-[10px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded">{t.admin.allAccess}</span> : role.permissions.map(p => (
-                     <span key={p} className="text-[10px] bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded">{allPerms.find(item => item.path === p)?.label || p}</span>
-                   ))}
+                <div className="flex flex-wrap gap-1 mt-2 max-h-24 overflow-y-auto custom-scroll">
+                   {role.isSuper ? (
+                     <span className="text-[10px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded">{t.admin.allAccess}</span>
+                   ) : (
+                     role.permissions.map(p => {
+                       const found = allPermIds.includes(p);
+                       if (!found) return null;
+                       const group = permissionGroups.find(g => g.perms.some(item => item.id === p));
+                       const perm = group?.perms.find(item => item.id === p);
+                       return (
+                         <span key={p} className="text-[9px] bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded flex items-center whitespace-nowrap">
+                           {group?.title}: {perm?.label}
+                         </span>
+                       );
+                     })
+                   )}
                 </div>
               </div>
             ))}
@@ -277,40 +382,70 @@ const AdminSettings: React.FC = () => {
       {roleModal.open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setRoleModal({ open: false })} />
-          <div className="relative w-full max-w-lg bg-gray-900 border border-gray-800 rounded-3xl shadow-2xl p-8 animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-white mb-6">{roleModal.editId ? t.admin.modals.editRole : t.admin.modals.addRole}</h3>
+          <div className="relative w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-[32px] shadow-2xl p-8 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-bold text-white">{roleModal.editId ? t.admin.modals.editRole : t.admin.modals.addRole}</h3>
+            </div>
+
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">{t.admin.modals.fields.name}</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-2 px-1">{t.admin.modals.fields.name}</label>
                 <input 
                   type="text" 
                   value={roleForm.name}
                   onChange={e => setRoleForm({...roleForm, name: e.target.value})}
-                  className={`w-full bg-gray-800 border ${roleModal.isSubmitted && roleForm.name.trim() === '' ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.2)]' : 'border-gray-700'} rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all`}
-                  placeholder="e.g. Risk Manager"
+                  className={`w-full bg-gray-800 border ${roleModal.isSubmitted && roleForm.name.trim() === '' ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.2)]' : 'border-gray-700'} rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-amber-500 transition-all`}
+                  placeholder="e.g. Compliance Auditor"
                 />
               </div>
+
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <label className={`block text-xs font-bold ${roleModal.isSubmitted && roleForm.permissions.length === 0 ? 'text-red-500' : 'text-gray-500'} uppercase`}>{t.admin.modals.fields.permissions}</label>
-                  <button onClick={toggleAllPermissions} className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-[10px] font-black uppercase text-amber-500 transition-all">
+                <div className="flex items-center justify-between mb-4 px-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.admin.modals.fields.permissions}</label>
+                  <button onClick={toggleAllPermissions} className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-[10px] font-black uppercase text-amber-500 transition-all">
                     <ListChecks className="w-3.5 h-3.5" />
-                    <span>{roleForm.permissions.length === allPerms.length ? t.admin.modals.deselectAll : t.admin.modals.selectAll}</span>
+                    <span>{roleForm.permissions.length === allPermIds.length ? t.admin.modals.deselectAll : t.admin.modals.selectAll}</span>
                   </button>
                 </div>
-                <div className={`grid grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scroll border p-2 rounded-xl transition-all ${roleModal.isSubmitted && roleForm.permissions.length === 0 ? 'border-red-500' : 'border-transparent'}`}>
-                  {allPerms.map(p => (
-                    <button key={p.path} onClick={() => togglePermission(p.path)} className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all ${roleForm.permissions.includes(p.path) ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-gray-800/40 border-gray-800 text-gray-500 hover:border-gray-700'}`}>
-                      <span className="text-xs font-medium">{p.label}</span>
-                      {roleForm.permissions.includes(p.path) && <Check className="w-3 h-3" />}
-                    </button>
+                <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-4 custom-scroll">
+                  {permissionGroups.map((group) => (
+                    <div key={group.title} className="bg-gray-800/20 border border-gray-800 rounded-2xl p-4">
+                      <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] mb-4 flex items-center">
+                        <LayoutGrid className="w-3 h-3 mr-2 text-amber-500" />
+                        {group.title}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {group.perms.map((perm) => (
+                          <button 
+                            key={perm.id} 
+                            onClick={() => togglePermission(perm.id)} 
+                            className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all group/item
+                              ${roleForm.permissions.includes(perm.id) 
+                                ? 'bg-amber-500/10 border-amber-500/50 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.05)]' 
+                                : 'bg-gray-900/40 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-gray-300'}
+                            `}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors
+                                ${roleForm.permissions.includes(perm.id) ? 'bg-amber-500 border-amber-500' : 'border-gray-700 group-hover/item:border-amber-500/50'}
+                              `}>
+                                {roleForm.permissions.includes(perm.id) && <Check className="w-3 h-3 text-white" strokeWidth={4} />}
+                              </div>
+                              <span className="text-xs font-bold truncate">{perm.label}</span>
+                            </div>
+                            {perm.id.startsWith('/') && <ChevronRight className="w-3 h-3 opacity-30" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex space-x-3 mt-8">
-              <button onClick={() => setRoleModal({ open: false })} className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-bold text-gray-300 transition-all">{t.common.cancel}</button>
-              <button onClick={handleRoleSubmit} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 transition-all shadow-lg shadow-amber-900/20">{t.common.confirm}</button>
+
+            <div className="flex space-x-4 mt-10">
+              <button onClick={() => setRoleModal({ open: false })} className="flex-1 px-4 py-3.5 bg-gray-800 hover:bg-gray-700 rounded-2xl text-sm font-bold text-gray-300 transition-all">{t.common.cancel}</button>
+              <button onClick={handleRoleSubmit} className="flex-1 px-4 py-3.5 rounded-2xl text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 transition-all shadow-xl shadow-amber-900/30">{t.common.confirm}</button>
             </div>
           </div>
         </div>

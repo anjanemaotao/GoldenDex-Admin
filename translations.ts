@@ -1,4 +1,3 @@
-
 export const translations = {
   en: {
     nav: {
@@ -43,6 +42,7 @@ export const translations = {
       time: "Time",
       search: "Search",
       all: "All",
+      view: "View",
       save: "Save",
       cancel: "Cancel",
       confirm: "Confirm",
@@ -76,7 +76,8 @@ export const translations = {
       paramsMultiSigComplete: "Contract parameters updated via multi-sig.",
       paramsSigRecorded: "Administrator signature recorded ({sigs}/2).",
       globalParamsUpdated: "Global parameters successfully synchronized.",
-      progressReset: "Governance progress has been reset."
+      progressReset: "Governance progress has been reset.",
+      selectPerms: "Please select at least one permission."
     },
     admin: {
       title: "Admin Management",
@@ -97,7 +98,7 @@ export const translations = {
         editRole: "Edit Role",
         selectAll: "Select All",
         deselectAll: "Deselect All",
-        fields: { name: "Name", wallet: "Wallet Address", role: "Select Role", permissions: "Permissions" }
+        fields: { name: "Name", wallet: "Wallet Address", role: "Select Role", permissions: "Permission Range" }
       }
     },
     dashboard: {
@@ -336,7 +337,7 @@ export const translations = {
       title: "Contract Settings",
       subtitle: "Manage underlying assets and trading parameters.",
       addBtn: "Add Contract",
-      editBtn: "Edit Info",
+      editBtn: "Edit Contract",
       setParams: "Config Parameters",
       table: {
         icon: "Icon",
@@ -538,6 +539,7 @@ export const translations = {
       time: "时间",
       search: "搜索",
       all: "全部",
+      view: "查看",
       save: "保存",
       cancel: "取消",
       confirm: "确认",
@@ -571,7 +573,8 @@ export const translations = {
       paramsMultiSigComplete: "合约参数已通过多签更新。",
       paramsSigRecorded: "管理员签名已记录 ({sigs}/2)。",
       globalParamsUpdated: "全局参数同步成功。",
-      progressReset: "治理进度已重置。"
+      progressReset: "治理进度已重置。",
+      selectPerms: "请选择权限范围"
     },
     admin: {
       title: "管理员管理",
@@ -831,7 +834,7 @@ export const translations = {
       title: "合约管理",
       subtitle: "管理合约标的物及其交易参数。",
       addBtn: "添加合约",
-      editBtn: "标记信息",
+      editBtn: "编辑合约",
       setParams: "设置参数",
       table: {
         icon: "图标",
@@ -1034,6 +1037,7 @@ export const translations = {
       time: "時間",
       search: "搜尋",
       all: "全部",
+      view: "查看",
       save: "保存",
       cancel: "取消",
       confirm: "確認",
@@ -1067,7 +1071,8 @@ export const translations = {
       paramsMultiSigComplete: "合約參數已通過多簽更新。",
       paramsSigRecorded: "管理員簽名已記錄 ({sigs}/2)。",
       globalParamsUpdated: "全局參數同步成功。",
-      progressReset: "治理進度已重置。"
+      progressReset: "治理進度已重置。",
+      selectPerms: "請選擇權限範圍"
     },
     admin: {
       title: "管理員管理",
@@ -1327,7 +1332,7 @@ export const translations = {
       title: "合約管理",
       subtitle: "管理合約標的物及其交易參數。",
       addBtn: "添加合約",
-      editBtn: "標記信息",
+      editBtn: "編輯合約",
       setParams: "設置參數",
       table: {
         icon: "圖標",
