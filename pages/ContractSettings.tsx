@@ -14,7 +14,8 @@ import {
   Percent,
   ArrowRightLeft,
   Users,
-  RotateCcw
+  RotateCcw,
+  ShieldAlert
 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
@@ -26,6 +27,11 @@ interface OnChainParams {
   liqPenaltyRatio: string;
   insFundSplit: string;
   keeperSplit: string;
+  withdrawFee: string;
+  singleWithdrawLimit: string;
+  dailyWithdrawLimit: string;
+  approvalThreshold: string;
+  delayThreshold: string;
 }
 
 interface OffChainParams {
@@ -47,6 +53,11 @@ const ON_CHAIN_DEFAULTS: OnChainParams = {
   liqPenaltyRatio: '10',
   insFundSplit: '50',
   keeperSplit: '50',
+  withdrawFee: '0.5',
+  singleWithdrawLimit: '100000',
+  dailyWithdrawLimit: '500000',
+  approvalThreshold: '500000',
+  delayThreshold: '1000000',
 };
 
 const OFF_CHAIN_DEFAULTS: OffChainParams = {
@@ -214,8 +225,8 @@ const ContractSettings: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           {activeTab === 'ON_CHAIN' ? (
-            <div className="space-y-6 animate-in slide-in-from-left-4 duration-300">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-8 animate-in slide-in-from-left-4 duration-300">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest px-1 flex items-center">
                     <ArrowRightLeft className="w-4 h-4 mr-2 text-amber-500" />
@@ -239,14 +250,21 @@ const ContractSettings: React.FC = () => {
                     <Coins className="w-4 h-4 mr-2 text-amber-500" />
                     {t.params.fees}
                   </h3>
-                  <InputField 
-                    label={t.params.labels.liqPenalty} 
-                    unit="%"
-                    value={onChainForm.liqPenaltyRatio} 
-                    onChange={(v) => setOnChainForm({...onChainForm, liqPenaltyRatio: v})}
-                    disabled={curSigs > 0}
-                  />
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <InputField 
+                      label={t.params.labels.liqPenalty} 
+                      unit="%"
+                      value={onChainForm.liqPenaltyRatio} 
+                      onChange={(v) => setOnChainForm({...onChainForm, liqPenaltyRatio: v})}
+                      disabled={curSigs > 0}
+                    />
+                    <InputField 
+                      label={t.params.labels.withdrawFee} 
+                      unit="USDC"
+                      value={onChainForm.withdrawFee} 
+                      onChange={(v) => setOnChainForm({...onChainForm, withdrawFee: v})}
+                      disabled={curSigs > 0}
+                    />
                     <InputField 
                       label={t.health.labels.insRatio} 
                       unit="%"
@@ -262,6 +280,19 @@ const ContractSettings: React.FC = () => {
                       disabled={curSigs > 0}
                     />
                   </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest px-1 flex items-center">
+                  <ShieldAlert className="w-4 h-4 mr-2 text-amber-500" />
+                  {t.params.riskControl}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                   <InputField label={t.params.labels.singleWithdrawLimit} unit="USDC" value={onChainForm.singleWithdrawLimit} onChange={(v) => setOnChainForm({...onChainForm, singleWithdrawLimit: v})} disabled={curSigs > 0} />
+                   <InputField label={t.params.labels.dailyWithdrawLimit} unit="USDC" value={onChainForm.dailyWithdrawLimit} onChange={(v) => setOnChainForm({...onChainForm, dailyWithdrawLimit: v})} disabled={curSigs > 0} />
+                   <InputField label={t.params.labels.approvalThreshold} unit="USDC" value={onChainForm.approvalThreshold} onChange={(v) => setOnChainForm({...onChainForm, approvalThreshold: v})} disabled={curSigs > 0} />
+                   <InputField label={t.params.labels.delayThreshold} unit="USDC" value={onChainForm.delayThreshold} onChange={(v) => setOnChainForm({...onChainForm, delayThreshold: v})} disabled={curSigs > 0} />
                 </div>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ArrowDownLeft, 
   ArrowUpRight, 
@@ -14,23 +14,58 @@ import {
   AlertCircle,
   Loader2,
   AlertTriangle,
-  RotateCcw
+  RotateCcw,
+  Timer
 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
 type MainTab = 'DEPOSIT' | 'WITHDRAW';
-type WithdrawSubTab = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'REJECTED' | 'FAILED';
+type WithdrawSubTab = 'PENDING' | 'WAITING' | 'PROCESSING' | 'COMPLETED' | 'REJECTED' | 'FAILED';
 
 interface FundRecord {
-  id?: string;
+  id: string;
   uid: string;
   wallet: string;
   token: string;
   network: string;
   amount: number;
   time: string;
-  status?: string;
+  status: WithdrawSubTab | string;
+  releaseAt?: number; // timestamp for countdown
 }
+
+// Countdown component for Waiting status
+const CountdownDisplay: React.FC<{ target: number }> = ({ target }) => {
+  const [timeLeft, setTimeLeft] = useState(target - Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const remaining = target - Date.now();
+      if (remaining <= 0) {
+        clearInterval(timer);
+        setTimeLeft(0);
+      } else {
+        setTimeLeft(remaining);
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [target]);
+
+  const formatTime = (ms: number) => {
+    if (ms <= 0) return "00:00:00";
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const mins = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="flex items-center space-x-1 font-mono text-amber-500 font-bold">
+      <Timer className="w-3 h-3" />
+      <span>{formatTime(timeLeft)}</span>
+    </div>
+  );
+};
 
 const FundRecords: React.FC = () => {
   const { t, showTip } = useLanguage();
@@ -45,13 +80,16 @@ const FundRecords: React.FC = () => {
   const [sigs, setSigs] = useState<Record<string, number>>({ 'W101': 0, 'W102': 1 });
   const [signingId, setSigningId] = useState<string | null>(null);
   
-  // Rejection state
+  // Modals state
   const [rejectModal, setRejectModal] = useState<{ id: string, uid: string } | null>(null);
+  const [cancelWaitModal, setCancelWaitModal] = useState<{ id: string } | null>(null);
 
-  // Use state for withdraw records to allow status updates
+  // Initial mock data
   const [withdrawRecords, setWithdrawRecords] = useState<FundRecord[]>([
     { id: 'W101', uid: '565682', wallet: '0xs4d5ad...88e1', token: 'USDC', network: 'Arbitrum', amount: 2000, time: '2025-12-10 10:31:19', status: 'PENDING' },
     { id: 'W102', uid: '123445', wallet: '0xabc999...f012', token: 'USDC', network: 'Arbitrum', amount: 5500, time: '2025-12-10 09:12:05', status: 'PENDING' },
+    { id: 'W107', uid: '772211', wallet: '0x321f...aa12', token: 'USDC', network: 'Arbitrum', amount: 3200, time: '2025-12-10 12:45:00', status: 'WAITING', releaseAt: Date.now() + 86400000 - 4500000 }, // ~22 hours left
+    { id: 'W108', uid: '883399', wallet: '0x1122...3344', token: 'USDC', network: 'Arbitrum', amount: 980, time: '2025-12-10 13:05:22', status: 'WAITING', releaseAt: Date.now() + 86400000 }, // ~24 hours left
     { id: 'W103', uid: '881223', wallet: '0xfee01a...d9e3', token: 'USDC', network: 'Arbitrum', amount: 150, time: '2025-12-10 08:45:00', status: 'PROCESSING' },
     { id: 'W104', uid: '992233', wallet: '0x321abc...77d2', token: 'USDC', network: 'Arbitrum', amount: 12000, time: '2025-12-09 14:20:11', status: 'COMPLETED' },
     { id: 'W105', uid: '776655', wallet: '0x999000...111a', token: 'USDC', network: 'Arbitrum', amount: 800, time: '2025-12-09 10:10:05', status: 'REJECTED' },
@@ -66,14 +104,15 @@ const FundRecords: React.FC = () => {
 
   const handleApprove = (id: string) => {
     setSigningId(id);
-    // Simulate wallet signing delay
     setTimeout(() => {
       setSigs(prev => {
         const newVal = Math.min((prev[id] || 0) + 1, 2);
         if (newVal === 2) {
-            // Once 2 sigs reached, mark as completed in mock state after a small delay
             setTimeout(() => {
-                setWithdrawRecords(list => list.map(r => r.id === id ? { ...r, status: 'COMPLETED' } : r));
+                // If amount is high, simulation moves to WAITING state
+                setWithdrawRecords(list => list.map(r => 
+                    r.id === id ? { ...r, status: 'WAITING', releaseAt: Date.now() + 86400000 } : r
+                ));
                 showTip(t.tips.withdrawApproved, 'success');
             }, 500);
         } else {
@@ -97,6 +136,16 @@ const FundRecords: React.FC = () => {
     showTip(t.tips.withdrawRejected, 'info');
   };
 
+  const handleCancelWaitConfirm = () => {
+    if (!cancelWaitModal) return;
+    setWithdrawRecords(list => list.map(r => 
+        r.id === cancelWaitModal.id ? { ...r, status: 'PENDING', releaseAt: undefined } : r
+    ));
+    setSigs(prev => ({ ...prev, [cancelWaitModal.id]: 0 }));
+    setCancelWaitModal(null);
+    showTip(t.tips.withdrawWaitCanceled, 'info');
+  };
+
   const filteredData = useMemo(() => {
     if (mainTab === 'DEPOSIT') {
       return depositRecords.filter(r => 
@@ -114,7 +163,6 @@ const FundRecords: React.FC = () => {
     }
   }, [mainTab, withdrawTab, searchQuery, tokenFilter, networkFilter, depositRecords, withdrawRecords]);
 
-  // Statistics calculation based on requirements
   const stats = useMemo(() => {
     if (mainTab === 'DEPOSIT') {
       return {
@@ -130,60 +178,61 @@ const FundRecords: React.FC = () => {
     }
   }, [mainTab, withdrawTab, depositRecords, withdrawRecords]);
 
+  // Safe translation mappings
+  const tabLabel = t.funds?.tabs?.[withdrawTab.toLowerCase() as keyof typeof t.funds.tabs] || withdrawTab;
+  const statusLabel = t.funds?.statusText?.[withdrawTab.toLowerCase() as keyof typeof t.funds.statusText] || withdrawTab;
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-12">
-      {/* Top Header & Main Tab Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center">
             <Wallet className="w-6 h-6 mr-3 text-amber-500" />
-            {t.funds.title}
+            {t.funds?.title || 'Fund Records'}
           </h1>
-          <p className="text-gray-400 text-sm">{t.funds.subtitle}</p>
+          <p className="text-gray-400 text-sm">{t.funds?.subtitle || 'Audit Records'}</p>
         </div>
         <div className="bg-gray-900/80 border border-gray-800 p-1 rounded-xl flex shadow-lg">
           <button 
             onClick={() => setMainTab('DEPOSIT')}
             className={`px-8 py-2.5 rounded-lg text-sm font-black uppercase tracking-widest transition-all ${mainTab === 'DEPOSIT' ? 'bg-amber-500 text-white shadow-xl shadow-amber-500/20' : 'text-gray-500 hover:text-gray-300'}`}
           >
-            {t.funds.recharge}
+            {t.funds?.recharge || 'Deposit'}
           </button>
           <button 
             onClick={() => setMainTab('WITHDRAW')}
             className={`px-8 py-2.5 rounded-lg text-sm font-black uppercase tracking-widest transition-all ${mainTab === 'WITHDRAW' ? 'bg-amber-500 text-white shadow-xl shadow-amber-500/20' : 'text-gray-500 hover:text-gray-300'}`}
           >
-            {t.funds.withdrawals}
+            {t.funds?.withdrawals || 'Withdraw'}
           </button>
         </div>
       </div>
 
-      {/* Sub-tabs for Withdrawals Only */}
       {mainTab === 'WITHDRAW' && (
-        <div className="flex space-x-2 border-b border-gray-800/50 pb-px">
-          {(['PENDING', 'PROCESSING', 'COMPLETED', 'REJECTED', 'FAILED'] as WithdrawSubTab[]).map(tab => (
+        <div className="flex space-x-2 border-b border-gray-800/50 pb-px overflow-x-auto no-scrollbar">
+          {(['PENDING', 'WAITING', 'PROCESSING', 'COMPLETED', 'REJECTED', 'FAILED'] as WithdrawSubTab[]).map(tab => (
             <button
               key={tab}
               onClick={() => setWithdrawTab(tab)}
-              className={`px-4 py-3 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${
+              className={`px-4 py-3 text-xs font-black uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
                 withdrawTab === tab 
                   ? 'border-amber-500 text-amber-500 bg-amber-500/5' 
                   : 'border-transparent text-gray-500 hover:text-gray-300 hover:bg-gray-800/30'
               }`}
             >
-              {t.funds.tabs[tab.toLowerCase() as keyof typeof t.funds.tabs]}
+              {t.funds?.tabs?.[tab.toLowerCase() as keyof typeof t.funds.tabs] || tab}
             </button>
           ))}
         </div>
       )}
 
-      {/* Stats Cards Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gray-900/60 border border-gray-800 p-6 rounded-3xl relative overflow-hidden group">
           <div className="absolute -right-4 -top-4 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
             <Coins className="w-24 h-24 text-amber-500" />
           </div>
           <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1.5">
-            {mainTab === 'DEPOSIT' ? t.funds.stats.totalCount : t.funds.stats[`${withdrawTab.toLowerCase()}Count` as keyof typeof t.funds.stats]}
+            {mainTab === 'DEPOSIT' ? (t.funds?.stats?.totalCount || 'Count') : ((t.funds?.stats as any)?.[`${withdrawTab.toLowerCase()}Count`] || 'Count')}
           </p>
           <div className="flex items-end space-x-3">
             <span className="text-4xl font-black text-white">{stats.count}</span>
@@ -195,7 +244,7 @@ const FundRecords: React.FC = () => {
             <Wallet className="w-24 h-24 text-blue-500" />
           </div>
           <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1.5">
-            {mainTab === 'DEPOSIT' ? t.funds.stats.totalAmount : t.funds.stats[`${withdrawTab.toLowerCase()}Amount` as keyof typeof t.funds.stats]}
+            {mainTab === 'DEPOSIT' ? (t.funds?.stats?.totalAmount || 'Amount') : ((t.funds?.stats as any)?.[`${withdrawTab.toLowerCase()}Amount`] || 'Amount')}
           </p>
           <div className="flex items-end space-x-3">
             <span className="text-4xl font-black text-amber-500">{stats.amount.toLocaleString()}</span>
@@ -204,7 +253,6 @@ const FundRecords: React.FC = () => {
         </div>
       </div>
 
-      {/* Search Bar & Advanced Filters */}
       <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-4 flex flex-wrap gap-4 items-center shadow-inner">
         <div className="relative flex-1 min-w-[300px]">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
@@ -220,7 +268,7 @@ const FundRecords: React.FC = () => {
         <div className="flex items-center bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 space-x-3 group hover:border-gray-700 transition-all">
           <Calendar className="w-4 h-4 text-gray-500 group-hover:text-amber-500 transition-colors" />
           <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.funds.filters.dateRange}:</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.funds?.filters?.dateRange || 'Range'}:</span>
             <input 
               type="date" 
               className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer"
@@ -266,24 +314,23 @@ const FundRecords: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Table Content */}
       <div className="bg-gray-900/40 border border-gray-800 rounded-3xl overflow-hidden shadow-2xl">
         <table className="w-full text-left">
           <thead className="bg-gray-800/50 text-gray-400 text-[10px] font-black uppercase tracking-widest">
             <tr>
               {mainTab === 'WITHDRAW' && <th className="px-6 py-5 w-16">#</th>}
-              <th className="px-6 py-5">{t.funds.table.uid} | {t.funds.table.address}</th>
-              <th className="px-6 py-5">{t.funds.table.token}</th>
-              <th className="px-6 py-5">{t.funds.table.network}</th>
-              <th className="px-6 py-5">{mainTab === 'DEPOSIT' ? t.funds.table.quantity : t.funds.table.withdrawQty}</th>
-              <th className="px-6 py-5">{t.funds.table.time}</th>
-              {mainTab === 'WITHDRAW' && <th className="px-6 py-5 text-right">{t.common.status} / {t.funds.table.actions}</th>}
+              <th className="px-6 py-5">{t.funds?.table?.uid || 'UID'} | {t.funds?.table?.address || 'Address'}</th>
+              <th className="px-6 py-5">{t.funds?.table?.token || 'Asset'}</th>
+              <th className="px-6 py-5">{t.funds?.table?.network || 'Network'}</th>
+              <th className="px-6 py-5">{mainTab === 'DEPOSIT' ? (t.funds?.table?.quantity || 'Qty') : (t.funds?.table?.withdrawQty || 'Amt')}</th>
+              <th className="px-6 py-5">{t.funds?.table?.time || 'Time'}</th>
+              {mainTab === 'WITHDRAW' && <th className="px-6 py-5 text-right">{t.common?.status || 'Status'} / {t.funds?.table?.actions || 'Actions'}</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800/50">
             {filteredData.length > 0 ? filteredData.map((rec, idx) => (
               <tr key={idx} className="hover:bg-amber-500/[0.01] transition-all group">
-                {mainTab === 'WITHDRAW' && <td className="px-6 py-5 text-xs text-gray-600 font-mono">{(rec as any).id}</td>}
+                {mainTab === 'WITHDRAW' && <td className="px-6 py-5 text-xs text-gray-600 font-mono">{rec.id}</td>}
                 <td className="px-6 py-5">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-xl transition-colors ${mainTab === 'DEPOSIT' ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500'}`}>
@@ -314,9 +361,9 @@ const FundRecords: React.FC = () => {
                         <>
                           <div className="flex flex-col items-end">
                             <div className="flex items-center space-x-2 mb-1.5">
-                               {(sigs[(rec as any).id] || 0) > 0 && (
+                               {(sigs[rec.id] || 0) > 0 && (
                                  <button 
-                                   onClick={() => handleResetSigs((rec as any).id)}
+                                   onClick={() => handleResetSigs(rec.id)}
                                    className="p-1 hover:bg-amber-500/20 text-amber-500 rounded transition-colors"
                                    title="Reset Signatures"
                                  >
@@ -324,37 +371,50 @@ const FundRecords: React.FC = () => {
                                  </button>
                                )}
                                <span className="text-[10px] text-gray-500 uppercase font-black tracking-tighter">
-                                {t.funds.table.sigStatus}: {sigs[(rec as any).id] || 0}/2
+                                {t.funds?.table?.sigStatus || 'Progress'}: {sigs[rec.id] || 0}/2
                                </span>
                             </div>
                             <div className="w-20 h-1.5 bg-gray-800 rounded-full overflow-hidden shadow-inner">
                               <div 
-                                className={`h-full transition-all duration-700 shadow-sm ${(sigs[(rec as any).id] || 0) >= 2 ? 'bg-green-500 shadow-green-500/50' : 'bg-amber-500 shadow-amber-500/50'}`} 
-                                style={{ width: `${((sigs[(rec as any).id] || 0) / 2) * 100}%` }}
+                                className={`h-full transition-all duration-700 shadow-sm ${(sigs[rec.id] || 0) >= 2 ? 'bg-green-500 shadow-green-500/50' : 'bg-amber-500 shadow-amber-500/50'}`} 
+                                style={{ width: `${((sigs[rec.id] || 0) / 2) * 100}%` }}
                               />
                             </div>
                           </div>
                           <div className="flex space-x-2">
                             <button 
-                              onClick={() => handleApprove((rec as any).id)}
-                              disabled={signingId === (rec as any).id || (sigs[(rec as any).id] || 0) >= 2}
+                              onClick={() => handleApprove(rec.id)}
+                              disabled={signingId === rec.id || (sigs[rec.id] || 0) >= 2}
                               className={`px-3 py-1.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all flex items-center
-                                ${(sigs[(rec as any).id] || 0) >= 2 
+                                ${(sigs[rec.id] || 0) >= 2 
                                   ? 'bg-green-500/10 border-green-500/30 text-green-500 cursor-default' 
                                   : 'bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20 active:scale-95'}
                               `}
                             >
-                              {signingId === (rec as any).id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Shield className="w-3 h-3 mr-1" />}
-                              {t.funds.table.approve}
+                              {signingId === rec.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Shield className="w-3 h-3 mr-1" />}
+                              {t.funds?.table?.approve || 'Sign'}
                             </button>
                             <button 
-                              onClick={() => setRejectModal({ id: (rec as any).id, uid: rec.uid })}
+                              onClick={() => setRejectModal({ id: rec.id, uid: rec.uid })}
                               className="p-1.5 rounded-xl border border-red-900/30 text-red-500 hover:bg-red-500/10 active:scale-95 transition-all"
                             >
                               <XCircle className="w-4 h-4" />
                             </button>
                           </div>
                         </>
+                      ) : withdrawTab === 'WAITING' ? (
+                        <div className="flex items-center space-x-6">
+                          <div className="flex flex-col items-end">
+                            <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1">{t.funds?.table?.countdown || 'Pay In'}</span>
+                            <CountdownDisplay target={rec.releaseAt || Date.now()} />
+                          </div>
+                          <button 
+                            onClick={() => setCancelWaitModal({ id: rec.id })}
+                            className="px-3 py-1.5 rounded-xl border border-red-900/30 text-red-400 hover:bg-red-500/10 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                          >
+                            {t.funds?.table?.cancelWait || 'Cancel Delay'}
+                          </button>
+                        </div>
                       ) : (
                         <div className="flex items-center space-x-2">
                            {withdrawTab === 'COMPLETED' && <CheckCircle className="w-4 h-4 text-green-500" />}
@@ -367,7 +427,7 @@ const FundRecords: React.FC = () => {
                              withdrawTab === 'REJECTED' ? 'text-red-500' :
                              withdrawTab === 'FAILED' ? 'text-gray-500' : ''
                            }`}>
-                             {t.funds.statusText[withdrawTab.toLowerCase() as keyof typeof t.funds.statusText]}
+                             {statusLabel}
                            </span>
                         </div>
                       )}
@@ -380,7 +440,7 @@ const FundRecords: React.FC = () => {
                 <td colSpan={mainTab === 'WITHDRAW' ? 7 : 6} className="px-6 py-20 text-center">
                    <div className="flex flex-col items-center justify-center opacity-20">
                      <Coins className="w-16 h-16 mb-4" />
-                     <p className="text-sm font-black uppercase tracking-widest">{t.common.noData}</p>
+                     <p className="text-sm font-black uppercase tracking-widest">{t.common?.noData || 'No Data'}</p>
                    </div>
                 </td>
               </tr>
@@ -399,9 +459,9 @@ const FundRecords: React.FC = () => {
                  <AlertTriangle className="w-10 h-10" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-bold text-white">{t.funds.modals.rejectTitle}</h3>
+                <h3 className="text-xl font-bold text-white">{t.funds?.modals?.rejectTitle || 'Reject'}</h3>
                 <p className="text-sm text-gray-400">
-                  {t.funds.modals.rejectDesc.replace('{id}', rejectModal.id).replace('{uid}', rejectModal.uid)}
+                  {t.funds?.modals?.rejectDesc?.replace('{id}', rejectModal.id).replace('{uid}', rejectModal.uid) || 'Confirm rejection?'}
                 </p>
               </div>
             </div>
@@ -410,13 +470,47 @@ const FundRecords: React.FC = () => {
                 onClick={() => setRejectModal(null)}
                 className="flex-1 px-4 py-3 bg-gray-800/60 hover:bg-gray-700/60 rounded-2xl text-sm font-bold text-gray-300 transition-all border border-gray-700"
               >
-                {t.common.cancel}
+                {t.common?.cancel || 'Cancel'}
               </button>
               <button 
                 onClick={handleRejectConfirm}
                 className="flex-1 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-red-500 hover:bg-red-600 transition-all shadow-lg shadow-red-900/20"
               >
-                {t.common.confirm}
+                {t.common?.confirm || 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Wait Confirmation Modal */}
+      {cancelWaitModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setCancelWaitModal(null)} />
+          <div className="relative w-full max-w-sm bg-gray-900 border border-gray-800 rounded-[32px] shadow-2xl p-8 animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="p-4 rounded-3xl bg-amber-500/10 text-amber-500">
+                 <AlertTriangle className="w-10 h-10" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-white">{t.funds?.modals?.cancelWaitTitle || 'Cancel Pay Delay'}</h3>
+                <p className="text-sm text-gray-400">
+                  {t.funds?.modals?.cancelWaitDesc?.replace('{id}', cancelWaitModal.id) || 'Cancel and return to pending?'}
+                </p>
+              </div>
+            </div>
+            <div className="flex space-x-3 mt-8">
+              <button 
+                onClick={() => setCancelWaitModal(null)}
+                className="flex-1 px-4 py-3 bg-gray-800/60 hover:bg-gray-700/60 rounded-2xl text-sm font-bold text-gray-300 transition-all border border-gray-700"
+              >
+                {t.common?.cancel || 'Cancel'}
+              </button>
+              <button 
+                onClick={handleCancelWaitConfirm}
+                className="flex-1 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 transition-all shadow-lg shadow-amber-900/20"
+              >
+                {t.common?.confirm || 'Confirm'}
               </button>
             </div>
           </div>

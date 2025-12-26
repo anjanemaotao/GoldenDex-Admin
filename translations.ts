@@ -77,7 +77,8 @@ export const translations = {
       paramsSigRecorded: "Administrator signature recorded ({sigs}/2).",
       globalParamsUpdated: "Global parameters successfully synchronized.",
       progressReset: "Governance progress has been reset.",
-      selectPerms: "Please select at least one permission."
+      selectPerms: "Please select at least one permission.",
+      withdrawWaitCanceled: "Withdrawal delay canceled. Returned to pending approval."
     },
     admin: {
       title: "Admin Management",
@@ -286,6 +287,7 @@ export const translations = {
       withdrawals: "Withdrawals",
       tabs: {
         pending: "Pending",
+        waiting: "Wait Pay",
         processing: "Processing",
         completed: "Completed",
         rejected: "Rejected",
@@ -296,6 +298,8 @@ export const translations = {
         totalAmount: "Total Deposited",
         pendingCount: "Pending Sigs",
         pendingAmount: "Pending Amount",
+        waitingCount: "Awaiting Pay",
+        waitingAmount: "Wait Amount",
         processingCount: "Processing",
         processingAmount: "In-Flight",
         completedCount: "Total Paid",
@@ -319,14 +323,19 @@ export const translations = {
         actions: "Actions",
         sigStatus: "Progress",
         approve: "Sign",
-        reject: "Reject"
+        reject: "Reject",
+        countdown: "Release In",
+        cancelWait: "Cancel Delay"
       },
       modals: {
         rejectTitle: "Reject Withdrawal",
-        rejectDesc: "Decline withdrawal request {id} for user {uid}?"
+        rejectDesc: "Decline withdrawal request {id} for user {uid}?",
+        cancelWaitTitle: "Cancel Payment Delay",
+        cancelWaitDesc: "Cancel payment for {id} and return it to Pending Approval?"
       },
       statusText: {
         pending: "Awaiting Sigs",
+        waiting: "Waiting for Payment",
         processing: "In Progress",
         completed: "Completed",
         rejected: "Rejected",
@@ -465,6 +474,7 @@ export const translations = {
       warningDesc: "Global parameters require 2 admin signatures. Changes will impact all users instantly upon execution.",
       switches: "System Switches",
       fees: "Economic Factors",
+      riskControl: "Risk Control",
       constants: "Network Constants",
       govStatus: "Governance Status",
       authSigs: "Authorized Signatures",
@@ -483,6 +493,11 @@ export const translations = {
         liqPenalty: "Liq. Penalty Ratio",
         insSplit: "Insurance Fund Split",
         keeperSplit: "Keeper Address Split",
+        withdrawFee: "Withdrawal Fee",
+        singleWithdrawLimit: "Single Withdrawal Limit",
+        dailyWithdrawLimit: "Daily Withdrawal Limit",
+        approvalThreshold: "Approval Threshold",
+        delayThreshold: "Delay Threshold",
         trading: "Global Trading",
         reg: "New User Registration",
         mmr: "Maint. Margin (MMR)",
@@ -574,7 +589,8 @@ export const translations = {
       paramsSigRecorded: "管理员签名已记录 ({sigs}/2)。",
       globalParamsUpdated: "全局参数同步成功。",
       progressReset: "治理进度已重置。",
-      selectPerms: "请选择权限范围"
+      selectPerms: "请选择权限范围",
+      withdrawWaitCanceled: "提现延迟已取消，已退回待审批状态。"
     },
     admin: {
       title: "管理员管理",
@@ -783,6 +799,7 @@ export const translations = {
       withdrawals: "提现记录",
       tabs: {
         pending: "待审批",
+        waiting: "等待打款",
         processing: "处理中",
         completed: "已完成",
         rejected: "已驳回",
@@ -793,6 +810,8 @@ export const translations = {
         totalAmount: "充值总金额",
         pendingCount: "待签笔数",
         pendingAmount: "待签金额",
+        waitingCount: "待打款笔数",
+        waitingAmount: "待打款金额",
         processingCount: "出金中笔数",
         processingAmount: "出金中金额",
         completedCount: "已完成笔数",
@@ -816,14 +835,19 @@ export const translations = {
         actions: "操作",
         sigStatus: "签名进度",
         approve: "管理员签名",
-        reject: "驳回"
+        reject: "驳回",
+        countdown: "打款倒计时",
+        cancelWait: "取消打款"
       },
       modals: {
         rejectTitle: "驳回提现申请",
-        rejectDesc: "确定要驳回用户 {uid} 的提现申请 {id} 吗？"
+        rejectDesc: "确定要驳回用户 {uid} 的提现申请 {id} 吗？",
+        cancelWaitTitle: "取消打款等待",
+        cancelWaitDesc: "确定要取消订单 {id} 的打款延迟并退回待审批状态吗？"
       },
       statusText: {
         pending: "等待多签",
+        waiting: "等待打款",
         processing: "打款中",
         completed: "已到账",
         rejected: "已驳回",
@@ -962,6 +986,7 @@ export const translations = {
       warningDesc: "全局参数修改需要至少 2 名管理员多签通过。修改将立即影响全站交易或资金流向。",
       switches: "系统开关",
       fees: "费用参数",
+      riskControl: "风控参数",
       constants: "核心常量",
       govStatus: "治理状态",
       authSigs: "已授权签名",
@@ -980,6 +1005,11 @@ export const translations = {
         liqPenalty: "强平罚金比例",
         insSplit: "罚金进保险基金比例",
         keeperSplit: "罚金进 Keeper 比例",
+        withdrawFee: "提现手续费",
+        singleWithdrawLimit: "单次提取限额",
+        dailyWithdrawLimit: "单日提取限额",
+        approvalThreshold: "审批额度",
+        delayThreshold: "延时到账额度",
         trading: "全局交易开关",
         reg: "新用户注册开关",
         mmr: "维持保证金率 (MMR)",
@@ -1072,7 +1102,8 @@ export const translations = {
       paramsSigRecorded: "管理員簽名已記錄 ({sigs}/2)。",
       globalParamsUpdated: "全局參數同步成功。",
       progressReset: "治理進度已重置。",
-      selectPerms: "請選擇權限範圍"
+      selectPerms: "請選擇權限範圍",
+      withdrawWaitCanceled: "提現延遲已取消，已退回待審批狀態。"
     },
     admin: {
       title: "管理員管理",
@@ -1228,7 +1259,7 @@ export const translations = {
         newUsers24h: "新增用戶 (24h)",
         newUsers24hDesc: "過去24小時內新註冊的錢包數量。",
         vol24h: "交易量 (24h)",
-        vol24hDesc: "過去24小時內的總交易額。",
+        vol24hDesc: "過去24小時內總交易額。",
         fees24h: "手續費收入 (24h)",
         fees24hDesc: "過去24小時內協議產生的手續費。"
       }
@@ -1281,6 +1312,7 @@ export const translations = {
       withdrawals: "提現記錄",
       tabs: {
         pending: "待審批",
+        waiting: "等待打款",
         processing: "處理中",
         completed: "已完成",
         rejected: "已駁回",
@@ -1291,6 +1323,8 @@ export const translations = {
         totalAmount: "充值总金额",
         pendingCount: "待簽筆數",
         pendingAmount: "待簽金額",
+        waitingCount: "待打款筆數",
+        waitingAmount: "待打款金額",
         processingCount: "出金中筆數",
         processingAmount: "出金中金額",
         completedCount: "已完成筆數",
@@ -1314,14 +1348,19 @@ export const translations = {
         actions: "操作",
         sigStatus: "簽名進度",
         approve: "管理員簽名",
-        reject: "駁回"
+        reject: "駁回",
+        countdown: "打款倒計時",
+        cancelWait: "取消打款"
       },
       modals: {
         rejectTitle: "駁回提現申請",
-        rejectDesc: "確定要駁回用戶 {uid} 的提現申請 {id} 嗎？"
+        rejectDesc: "確定要駁回用戶 {uid} 的提現申請 {id} 嗎？",
+        cancelWaitTitle: "取消打款等待",
+        cancelWaitDesc: "確定要取消訂單 {id} 的打款延遲並退回待審批狀態嗎？"
       },
       statusText: {
         pending: "等待多簽",
+        waiting: "等待打款",
         processing: "打款中",
         completed: "已到帳",
         rejected: "已駁回",
@@ -1336,7 +1375,7 @@ export const translations = {
       setParams: "設置參數",
       table: {
         icon: "圖標",
-        id: "ID",
+        id: "圖標",
         name: "名稱",
         symbol: "符號",
         pair: "合約"
@@ -1460,6 +1499,7 @@ export const translations = {
       warningDesc: "全局參數修改需要至少 2 名管理員多簽通過。修改將立即影響全站交易或資金流向。",
       switches: "系統開關",
       fees: "費用參數",
+      riskControl: "風控參數",
       constants: "核心常量",
       govStatus: "治理狀態",
       authSigs: "已授權簽名",
@@ -1478,6 +1518,11 @@ export const translations = {
         liqPenalty: "強平罰金比例",
         insSplit: "罰金进保險基金比例",
         keeperSplit: "罰金進 Keeper 比例",
+        withdrawFee: "提現手續費",
+        singleWithdrawLimit: "單次提取限額",
+        dailyWithdrawLimit: "單日提取限額",
+        approvalThreshold: "審批額度",
+        delayThreshold: "延時到帳額度",
         trading: "全局交易開關",
         reg: "註冊開關",
         imr: "初始保證金",
