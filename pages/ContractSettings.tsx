@@ -29,6 +29,7 @@ interface OnChainParams {
   keeperSplit: string;
   withdrawFee: string;
   singleWithdrawLimit: string;
+  minSingleWithdrawLimit: string;
   dailyWithdrawLimit: string;
   approvalThreshold: string;
   delayThreshold: string;
@@ -55,6 +56,7 @@ const ON_CHAIN_DEFAULTS: OnChainParams = {
   keeperSplit: '50',
   withdrawFee: '0.5',
   singleWithdrawLimit: '100000',
+  minSingleWithdrawLimit: '5',
   dailyWithdrawLimit: '500000',
   approvalThreshold: '500000',
   delayThreshold: '1000000',
@@ -63,7 +65,7 @@ const ON_CHAIN_DEFAULTS: OnChainParams = {
 const OFF_CHAIN_DEFAULTS: OffChainParams = {
   globalTrading: true,
   regSwitch: true,
-  mmrRatio: '50',
+  mmrRatio: '0.5',
   fundingCap: '0.05',
   maxUserPos: '200',
   makerFee: '0.010',
@@ -266,7 +268,7 @@ const ContractSettings: React.FC = () => {
                       disabled={curSigs > 0}
                     />
                     <InputField 
-                      label={t.health.labels.insRatio} 
+                      label={t.params.labels.insSplit} 
                       unit="%"
                       value={onChainForm.insFundSplit} 
                       onChange={(v) => setOnChainForm({...onChainForm, insFundSplit: v})}
@@ -288,7 +290,8 @@ const ContractSettings: React.FC = () => {
                   <ShieldAlert className="w-4 h-4 mr-2 text-amber-500" />
                   {t.params.riskControl}
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                   <InputField label={t.params.labels.minSingleWithdrawLimit} unit="USDC" value={onChainForm.minSingleWithdrawLimit} onChange={(v) => setOnChainForm({...onChainForm, minSingleWithdrawLimit: v})} disabled={curSigs > 0} />
                    <InputField label={t.params.labels.singleWithdrawLimit} unit="USDC" value={onChainForm.singleWithdrawLimit} onChange={(v) => setOnChainForm({...onChainForm, singleWithdrawLimit: v})} disabled={curSigs > 0} />
                    <InputField label={t.params.labels.dailyWithdrawLimit} unit="USDC" value={onChainForm.dailyWithdrawLimit} onChange={(v) => setOnChainForm({...onChainForm, dailyWithdrawLimit: v})} disabled={curSigs > 0} />
                    <InputField label={t.params.labels.approvalThreshold} unit="USDC" value={onChainForm.approvalThreshold} onChange={(v) => setOnChainForm({...onChainForm, approvalThreshold: v})} disabled={curSigs > 0} />
