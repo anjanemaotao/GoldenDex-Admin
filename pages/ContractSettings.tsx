@@ -39,19 +39,16 @@ interface OffChainParams {
   globalTrading: boolean;
   regSwitch: boolean;
   mmrRatio: string;
-  fundingCap: string;
   maxUserPos: string;
+  orderFreqLimit: string;
   makerFee: string;
   takerFee: string;
-  interestRate: string;
-  fundingFreq: string;
-  orderFreqLimit: string;
 }
 
 const ON_CHAIN_DEFAULTS: OnChainParams = {
   vaultDepositArb: true,
   vaultWithdrawArb: true,
-  liqPenaltyRatio: '10',
+  liqPenaltyRatio: '0.3',
   insFundSplit: '50',
   keeperSplit: '50',
   withdrawFee: '0.5',
@@ -66,13 +63,10 @@ const OFF_CHAIN_DEFAULTS: OffChainParams = {
   globalTrading: true,
   regSwitch: true,
   mmrRatio: '0.5',
-  fundingCap: '0.05',
   maxUserPos: '200',
+  orderFreqLimit: '1000',
   makerFee: '0.010',
   takerFee: '0.035',
-  interestRate: '0.01',
-  fundingFreq: '1',
-  orderFreqLimit: '1000',
 };
 
 const ContractSettings: React.FC = () => {
@@ -332,13 +326,6 @@ const ContractSettings: React.FC = () => {
                       onChange={(v) => setOffChainForm({...offChainForm, mmrRatio: v})}
                       disabled={curSigs > 0}
                     />
-                    <InputField 
-                      label={t.params.labels.fundingCap} 
-                      unit="%"
-                      value={offChainForm.fundingCap} 
-                      onChange={(v) => setOffChainForm({...offChainForm, fundingCap: v})}
-                      disabled={curSigs > 0}
-                    />
                   </div>
                </div>
 
@@ -347,12 +334,10 @@ const ContractSettings: React.FC = () => {
                     <Users className="w-4 h-4 mr-2 text-blue-500" />
                     {t.params.tradingParams}
                  </h3>
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <InputField label={t.params.labels.maxUserPos} unit="M USDC" value={offChainForm.maxUserPos} onChange={(v) => setOffChainForm({...offChainForm, maxUserPos: v})} disabled={curSigs > 0} />
                     <InputField label={t.params.labels.makerFee} unit="%" value={offChainForm.makerFee} onChange={(v) => setOffChainForm({...offChainForm, makerFee: v})} disabled={curSigs > 0} />
                     <InputField label={t.params.labels.takerFee} unit="%" value={offChainForm.takerFee} onChange={(v) => setOffChainForm({...offChainForm, takerFee: v})} disabled={curSigs > 0} />
-                    <InputField label={t.params.labels.interestRate} unit="%/H" value={offChainForm.interestRate} onChange={(v) => setOffChainForm({...offChainForm, interestRate: v})} disabled={curSigs > 0} />
-                    <InputField label={t.params.labels.settleFreq} unit="H" value={offChainForm.fundingFreq} onChange={(v) => setOffChainForm({...offChainForm, fundingFreq: v})} disabled={curSigs > 0} />
                     <InputField label={t.params.labels.orderFreq} unit="笔/秒/IP" value={offChainForm.orderFreqLimit} onChange={(v) => setOffChainForm({...offChainForm, orderFreqLimit: v})} disabled={curSigs > 0} />
                  </div>
                </div>

@@ -151,7 +151,7 @@ export const translations = {
       marginCross: "Cross",
       marginType: "M.Type",
       entryPrice: "Entry",
-      liqPrice: "Liq.",
+      liqPrice: "Liq. Price",
       pnl: "Unrealized PnL",
       realizedPnl: "Realized PnL",
       marginRate: "Margin Rate",
@@ -379,10 +379,16 @@ export const translations = {
         marketPriceCap: "Market Order Cap/Floor Ratio",
         limitPriceUpper: "Limit Price Upper Ratio",
         limitPriceLower: "Limit Price Lower Ratio",
+        fundingCap: "Funding Rate Cap",
+        interestRate: "Interest Rate",
+        settleInterval: "Settlement Interval (N)",
+        makerFee: "Maker Fee",
+        takerFee: "Taker Fee",
         units: {
           times: "x",
           count: "Orders",
-          pct: "%"
+          pct: "%",
+          h: "h"
         },
         desc: {
           maxLeverage: "Maximum leverage available for the contract.",
@@ -395,7 +401,12 @@ export const translations = {
           minPriceFluc: "Minimum unit of contract price change.",
           marketPriceCap: "Order may expire if mark price deviates beyond this threshold.",
           limitPriceUpper: "Limit sell price must be >= (1-ratio) * mark price.",
-          limitPriceLower: "Limit buy price must be <= (1+ratio) * mark price."
+          limitPriceLower: "Limit buy price must be <= (1+ratio) * mark price.",
+          fundingCap: "The upper and lower bounds of the funding rate. Effective in the next cycle after adjustment.",
+          interestRate: "Base interest rate for the 8-hour settlement cycle. Adjustment effective next cycle.",
+          settleInterval: "Funding settlement frequency in hours. Adjustment effective next cycle.",
+          makerFee: "Trading fee for maker orders on this contract.",
+          takerFee: "Trading fee for taker orders on this contract."
         }
       }
     },
@@ -490,9 +501,9 @@ export const translations = {
       labels: {
         vaultDeposit: "Vault Deposit (Arb)",
         vaultWithdraw: "Vault Withdraw (Arb)",
-        liqPenalty: "Liq. Penalty Ratio",
-        insSplit: "Insurance Fund Split",
-        keeperSplit: "Keeper Address Split",
+        liqPenalty: "Liquidation Fee Rate",
+        insSplit: "Fee to Insurance Fund Ratio",
+        keeperSplit: "Fee to Keeper Ratio",
         withdrawFee: "Withdrawal Fee",
         singleWithdrawLimit: "Max Single Withdrawal Limit",
         minSingleWithdrawLimit: "Min Single Withdrawal Limit",
@@ -664,7 +675,7 @@ export const translations = {
       marginCross: "全仓",
       marginType: "模式",
       entryPrice: "开仓价",
-      liqPrice: "强评价",
+      liqPrice: "强平价",
       pnl: "未实现盈亏",
       realizedPnl: "已实现盈亏",
       marginRate: "保证金率",
@@ -892,10 +903,16 @@ export const translations = {
         marketPriceCap: "市价订单价格上限/底层比率",
         limitPriceUpper: "限价单价格上限比例",
         limitPriceLower: "限价单价格下限比例",
+        fundingCap: "资金费率上限",
+        interestRate: "基准利率 (Interest Rate)",
+        settleInterval: "资金费间隔 (N)",
+        makerFee: "Maker 费率",
+        takerFee: "Taker 费率",
         units: {
           times: "倍",
           count: "笔",
-          pct: "%"
+          pct: "%",
+          h: "h"
         },
         desc: {
           maxLeverage: "该合约可使用最大杠杆倍数",
@@ -908,7 +925,12 @@ export const translations = {
           minPriceFluc: "该合约价格变动的最小单位",
           marketPriceCap: "在极端市场情况下，当市场价格偏离标记价格超过该阈值时，市价单可能会过期或仅部分成交。",
           limitPriceUpper: "限价卖单价格应大于或等于 (1-价格下限比例)*合约当前标记价格。",
-          limitPriceLower: "限价买单价格应小于或等于 (1+价格上限比例)*合约当前标记价格"
+          limitPriceLower: "限价买单价格应小于或等于 (1+价格上限比例)*合约当前标记价格",
+          fundingCap: "资金费率的上下限，调整后下一个周期生效。",
+          interestRate: "8 小时结算周期基准利率，资金费率公式通过 N 来匹配其他结算周期基准利率，调整后下一个周期生效。",
+          settleInterval: "每隔几个小时结算一次资金费，调整后下一个周期生效。",
+          makerFee: "该合约的 Maker 交易手续费率。",
+          takerFee: "该合约的 Taker 交易手续费率。"
         }
       }
     },
@@ -959,9 +981,9 @@ export const translations = {
         reg: "新账户通过网络 {net} 注册。",
         deposit: "用户向金库充值，充值 ID: {id}, 链: {net}, 数量: {qty} USDC。",
         withdraw: "用户从金库提现，提现 ID: {id}, 数量: {qty}, 网络: {net}, 状态: {status}。",
-        orderCreate: "用户创建委托单，订单 ID: {id}, 合约: {sym}, 方向: {side}, 杠杆倍数: {lev}x, 数量: {qty}, 价格: {price}, 类型: {type}、交易费: {fee}。",
+        orderCreate: "用户创建委托单，订单 ID: {id}, 合约: {sym}, 方向: {side}, 杠杆倍数: {lev}x, 数量: {qty}, 价格: {price}, 类型: {type}、手续费: {fee}。",
         orderCancel: "用户取消订单，订单 ID: {id}。",
-        trade: "用户订单成交，订单 ID: {id}, 合约: {sym}, 方向: {side}, 数量: {qty}, 价格: {price}, 类型: {type}、已实现盈亏：{pnl}、交易费：{fee}, 成交时间: {time}。",
+        trade: "用户订单成交，订单 ID: {id}, 合约: {sym}, 方向: {side}, 数量: {qty}, 价格: {price}, 类型: {type}、已实现盈亏：{pnl}、手续费：{fee}, 成交时间: {time}。",
         posOpen: "用户开仓，仓位 ID: {id}, 合约: {sym}, 方向: {side}, 杠杆: {lev} x, 数量: {qty}, 开仓价: {price}。",
         posChange: "用户平仓，仓位 ID: {id}, 合约: {sym}, 方向: {side}, 杠杆: {lev} 倍, 平仓数量: {qty}, 平仓价: {price}。",
         liq: "用户仓位被强平，仓位 ID: {id}, 合约: {sym}, 方向: {side}, 杠杆: {lev} 倍, 清算价格: {price}, 清算数量: {qty}, 清算费: {fee}, Keeper 地址: {keeper}。",
@@ -970,7 +992,7 @@ export const translations = {
         riskLimit: "用户触发频率限制，类型: {type}。",
         freeze: "管理员{action}账户 {uid}({address})，原因：{reason}。",
         ins: "保险基金变动: {delta} USDC, 来源: {source}。",
-        params: "管理员更新参数: {key} ({old} -> {new})。",
+        params: "管理员更新参数: {key} ({old} -> {new} )。",
         insDeposit: "管理员向保险基金充值，充值 ID: {id}, 链: {net}, 数量: {qty} USDC。",
         insWithdraw: "管理员从保险基金提现，提现 ID: {id}, 数量: {qty} USDC。",
         userFreeze: "冻结账户 {uid}({address})，原因：{reason}。",
@@ -1003,9 +1025,9 @@ export const translations = {
       labels: {
         vaultDeposit: "Vault 充值开关 (Arb)",
         vaultWithdraw: "Vault 提现开关 (Arb)",
-        liqPenalty: "强平罚金比例",
-        insSplit: "罚金进保险基金比例",
-        keeperSplit: "罚金进 Keeper 比例",
+        liqPenalty: "清算费率",
+        insSplit: "清算费进保险基金比例",
+        keeperSplit: "清算费进 Keeper 比例",
         withdrawFee: "提现手续费",
         singleWithdrawLimit: "单笔最高提取限额",
         minSingleWithdrawLimit: "单笔最低提取限额",
@@ -1178,7 +1200,7 @@ export const translations = {
       marginCross: "全倉",
       marginType: "模式",
       entryPrice: "開倉價",
-      liqPrice: "強評價",
+      liqPrice: "強平價",
       pnl: "未實現盈虧",
       realizedPnl: "已實現盈亏",
       marginRate: "保證金率",
@@ -1406,10 +1428,16 @@ export const translations = {
         marketPriceCap: "市價訂單價格上限/底層比率",
         limitPriceUpper: "限價單價格上限比例",
         limitPriceLower: "限價單價格下限比例",
+        fundingCap: "資金費率上限",
+        interestRate: "基準利率 (Interest Rate)",
+        settleInterval: "資金費間隔 (N)",
+        makerFee: "Maker 費率",
+        takerFee: "Taker 費率",
         units: {
           times: "倍",
           count: "筆",
-          pct: "%"
+          pct: "%",
+          h: "h"
         },
         desc: {
           maxLeverage: "該合約可使用最大槓桿倍數",
@@ -1422,7 +1450,12 @@ export const translations = {
           minPriceFluc: "該合約價格變動的最小單位",
           marketPriceCap: "在極端市場情況下，當市場價格偏離標記價格超過該閾值時，市價單可能會過期或僅部分成交。",
           limitPriceUpper: "限價賣單價格應大於或等於 (1-價格下限比例)*合約當前標記價格。",
-          limitPriceLower: "限價買單價格應小於或等於 (1+價格上限比例)*合約當前標記價格"
+          limitPriceLower: "限價買單價格應小於或等於 (1+價格上限比例)*合約當前標記價格",
+          fundingCap: "資金費率的上下限，調整後下一個週期生效。",
+          interestRate: "8 小時結算週期基準利率，資金費率公式通過 N 來匹配其他結算週期基準利率，調整後下一個週期生效。",
+          settleInterval: "每隔幾個小時結算一次資金費，調整後下一個週期生效。",
+          makerFee: "該合約的 Maker 交易手續費率。",
+          takerFee: "該合約的 Taker 交易手續費率。"
         }
       }
     },
@@ -1517,9 +1550,9 @@ export const translations = {
       labels: {
         vaultDeposit: "Vault 充值開關 (Arb)",
         vaultWithdraw: "Vault 提現開关 (Arb)",
-        liqPenalty: "強平罰金比例",
-        insSplit: "罰金进保險基金比例",
-        keeperSplit: "罰金進 Keeper 比例",
+        liqPenalty: "清算費率",
+        insSplit: "清算費進保險基金比例",
+        keeperSplit: "清算費進 Keeper 比例",
         withdrawFee: "提現手續費",
         singleWithdrawLimit: "單筆最高提取限額",
         minSingleWithdrawLimit: "單筆最低提取限額",
@@ -1532,7 +1565,7 @@ export const translations = {
         mmr: "維持保證金率 (MMR)",
         fundingCap: "資金費率上限",
         maxUserPos: "單用戶最大倉位價值",
-        makerFee: "Maker 费率",
+        makerFee: "Maker 費率",
         takerFee: "Taker 費率",
         interestRate: "基準利率",
         settleFreq: "資金費率結算頻率",

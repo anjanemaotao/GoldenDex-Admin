@@ -21,6 +21,9 @@ interface ParamState {
   marketPriceCap: string;
   limitPriceUpper: string;
   limitPriceLower: string;
+  fundingCap: string;
+  interestRate: string;
+  settleInterval: string;
 }
 
 const DEFAULT_PARAMS: ParamState = {
@@ -35,6 +38,9 @@ const DEFAULT_PARAMS: ParamState = {
   marketPriceCap: '3',
   limitPriceUpper: '3',
   limitPriceLower: '3',
+  fundingCap: '2',
+  interestRate: '0.01',
+  settleInterval: '4',
 };
 
 const ContractManager: React.FC = () => {
@@ -143,6 +149,9 @@ const ContractManager: React.FC = () => {
     { key: 'marketPriceCap', label: t.contract.params.marketPriceCap, unit: t.contract.params.units.pct, desc: t.contract.params.desc.marketPriceCap },
     { key: 'limitPriceUpper', label: t.contract.params.limitPriceUpper, unit: t.contract.params.units.pct, desc: t.contract.params.desc.limitPriceUpper },
     { key: 'limitPriceLower', label: t.contract.params.limitPriceLower, unit: t.contract.params.units.pct, desc: t.contract.params.desc.limitPriceLower },
+    { key: 'fundingCap', label: t.contract.params.fundingCap, unit: t.contract.params.units.pct, desc: t.contract.params.desc.fundingCap },
+    { key: 'interestRate', label: t.contract.params.interestRate, unit: t.contract.params.units.pct, desc: t.contract.params.desc.interestRate },
+    { key: 'settleInterval', label: t.contract.params.settleInterval, unit: t.contract.params.units.h, desc: t.contract.params.desc.settleInterval },
   ];
 
   return (
