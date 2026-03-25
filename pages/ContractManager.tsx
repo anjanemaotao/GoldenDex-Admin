@@ -202,7 +202,7 @@ const ContractManager: React.FC = () => {
               <tr key={item.id} className="hover:bg-amber-500/[0.01] transition-all group">
                 <td className="px-6 py-5">
                   <div className="w-10 h-10 rounded-xl bg-gray-800 p-2 flex items-center justify-center border border-gray-700 group-hover:border-amber-500/50 transition-colors">
-                    <img src={item.icon || 'https://cdn-icons-png.flaticon.com/512/2992/2992742.png'} alt={item.symbol} className="w-full h-full object-contain" />
+                    <img src={item.icon || 'https://cdn-icons-png.flaticon.com/512/2992/2992742.png'} alt={item.symbol} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
                   </div>
                 </td>
                 <td className="px-6 py-5 text-sm font-mono text-gray-500">{item.id}</td>
@@ -254,7 +254,7 @@ const ContractManager: React.FC = () => {
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">{t.contract.modals.uploadIcon}</label>
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 rounded-2xl bg-gray-800 border-2 border-dashed border-gray-700 flex items-center justify-center text-gray-600 hover:border-amber-500/50 transition-colors cursor-pointer overflow-hidden">
-                    {form.icon ? <img src={form.icon} className="w-full h-full object-contain" /> : <ImageIcon className="w-6 h-6" />}
+                    {form.icon ? <img src={form.icon} className="w-full h-full object-contain" referrerPolicy="no-referrer" /> : <ImageIcon className="w-6 h-6" />}
                   </div>
                   <input 
                     type="text" 

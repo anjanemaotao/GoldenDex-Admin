@@ -150,20 +150,20 @@ const MarketWatch: React.FC = () => {
         </div>
         
         {/* Date Range Selector */}
-        <div className="flex items-center bg-gray-900 border border-gray-800 rounded-xl px-4 py-2 space-x-3 group hover:border-gray-700 transition-all">
+        <div className="flex items-center bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 space-x-3 group hover:border-amber-500/30 transition-all">
           <Calendar className="w-4 h-4 text-gray-500 group-hover:text-amber-500 transition-colors" />
           <div className="flex items-center space-x-2">
             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.market.dateRange}:</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] border-none"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] border-none focus:ring-0"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
             />
             <span className="text-gray-700">-</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] border-none"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] border-none focus:ring-0"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
             />

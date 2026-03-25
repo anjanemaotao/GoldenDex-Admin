@@ -106,7 +106,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     className="flex flex-col items-center justify-center p-4 bg-gray-800/40 border border-gray-800 rounded-2xl hover:border-amber-500/50 hover:bg-amber-500/5 transition-all duration-300 group"
                   >
                     <div className="w-12 h-12 mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <img src={wallet.icon} alt={wallet.name} className="w-10 h-10 object-contain rounded-md" />
+                      <img src={wallet.icon} alt={wallet.name} className="w-10 h-10 object-contain rounded-md" referrerPolicy="no-referrer" />
                     </div>
                     <span className="text-xs font-bold text-gray-300">{wallet.name}</span>
                   </button>
