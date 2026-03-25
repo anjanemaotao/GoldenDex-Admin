@@ -13,7 +13,8 @@ import {
   Settings,
   Coins,
   Shield,
-  User
+  User,
+  Key
 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 
@@ -31,6 +32,7 @@ const Sidebar: React.FC = () => {
     { name: t.nav.alerts, path: '/alerts', icon: Bell },
     { name: t.nav.users, path: '/users', icon: Users },
     { name: t.nav.funds, path: '/funds', icon: Wallet },
+    { name: t.nav.wallets, path: '/wallets', icon: Key },
     { name: t.nav.logs, path: '/logs', icon: ScrollText },
     { name: t.nav.contractManager, path: '/contracts', icon: Coins },
     { name: t.nav.params, path: '/settings', icon: Settings },

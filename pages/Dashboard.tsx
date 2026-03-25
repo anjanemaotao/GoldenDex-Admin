@@ -1,22 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line, CartesianGrid } from 'recharts';
-import { Users, DollarSign, Activity, AlertCircle, TrendingUp, ShieldCheck, Layers, Users2, Timer, AlertTriangle, LayoutDashboard } from 'lucide-react';
+import { Users, DollarSign, Activity, AlertCircle, TrendingUp, ShieldCheck, Layers, Users2, Timer, AlertTriangle, LayoutDashboard, RefreshCcw } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
+import axios from 'axios';
 
 const Dashboard: React.FC = () => {
   const { t } = useLanguage();
   const [selectedContract, setSelectedContract] = useState('XAUUSDC');
+  const [loading, setLoading] = useState(true);
+  const [apiStats, setApiStats] = useState<any>(null);
 
-  // Mock Data
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/dashboard/stats');
+      setApiStats(response.data);
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  // Stats Grid Data
   const stats = [
-    { title: t.dashboard.stats.active60s, value: '1,284', change: '+12%', icon: Activity, color: 'text-blue-500' },
-    { title: t.dashboard.stats.active24h, value: '45,829', change: '+5.4%', icon: Users, color: 'text-green-500' },
-    { title: t.dashboard.stats.totalUsers, value: '892,102', change: '+1.2%', icon: Users, color: 'text-purple-500' },
-    { title: t.dashboard.stats.vaultTvl, value: '$124.5M', change: '-2.1%', icon: DollarSign, color: 'text-amber-500' },
-    { title: t.dashboard.stats.oi, value: '$452.1M', change: '+15.2%', icon: TrendingUp, color: 'text-orange-500' },
-    { title: t.dashboard.stats.oiCount, value: '42,910', change: '+8.4%', icon: Layers, color: 'text-emerald-500' },
-    { title: t.dashboard.stats.oiUsers, value: '18,521', change: '+10.1%', icon: Users2, color: 'text-cyan-500' },
-    { title: t.dashboard.stats.insurance, value: '$12.8M', change: '+0.4%', icon: ShieldCheck, color: 'text-pink-500' },
+    { title: t.dashboard.stats.active60s, value: apiStats?.active60s?.toLocaleString() || '...', change: '+12%', icon: Activity, color: 'text-blue-500' },
+    { title: t.dashboard.stats.active24h, value: apiStats?.active24h?.toLocaleString() || '...', change: '+5.4%', icon: Users, color: 'text-green-500' },
+    { title: t.dashboard.stats.totalUsers, value: apiStats?.totalUsers?.toLocaleString() || '...', change: '+1.2%', icon: Users, color: 'text-purple-500' },
+    { title: t.dashboard.stats.vaultTvl, value: `$${apiStats?.vaultTvl?.toFixed(1) || '...'}M`, change: '-2.1%', icon: DollarSign, color: 'text-amber-500' },
+    { title: t.dashboard.stats.oi, value: `$${apiStats?.oi?.toFixed(1) || '...'}M`, change: '+15.2%', icon: TrendingUp, color: 'text-orange-500' },
+    { title: t.dashboard.stats.oiCount, value: apiStats?.oiCount?.toLocaleString() || '...', change: '+8.4%', icon: Layers, color: 'text-emerald-500' },
+    { title: t.dashboard.stats.oiUsers, value: apiStats?.oiUsers?.toLocaleString() || '...', change: '+10.1%', icon: Users2, color: 'text-cyan-500' },
+    { title: t.dashboard.stats.insurance, value: `$${apiStats?.insurance?.toFixed(1) || '...'}M`, change: '+0.4%', icon: ShieldCheck, color: 'text-pink-500' },
   ];
 
   const positionDistData = [
@@ -59,10 +80,19 @@ const Dashboard: React.FC = () => {
           </h1>
           <p className="text-gray-400 mt-1">{t.dashboard.subtitle}</p>
         </div>
-        <div className="flex space-x-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-          <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-green-500 mr-2" /> {t.dashboard.engineStatus}</span>
-          <span className="px-2">|</span>
-          <span>{t.dashboard.lastUpdated}</span>
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={fetchStats}
+            disabled={loading}
+            className="p-2 bg-gray-900 border border-gray-800 rounded-xl hover:border-amber-500/50 transition-all group disabled:opacity-50"
+          >
+            <RefreshCcw className={`w-5 h-5 text-amber-500 ${loading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+          </button>
+          <div className="flex space-x-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-green-500 mr-2" /> {t.dashboard.engineStatus}</span>
+            <span className="px-2">|</span>
+            <span>{t.dashboard.lastUpdated}</span>
+          </div>
         </div>
       </div>
 
@@ -148,7 +178,7 @@ const Dashboard: React.FC = () => {
               {t.dashboard.charts.fundingTrend}
             </h3>
             <select 
-              className="bg-gray-800 border border-gray-700 text-xs rounded px-2 py-1 outline-none text-gray-300 focus:border-amber-500"
+              className="bg-gray-800 border border-gray-700 text-xs rounded px-2 py-1 outline-none text-gray-300 focus:border-amber-500 border-none"
               value={selectedContract}
               onChange={(e) => setSelectedContract(e.target.value)}
             >

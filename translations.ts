@@ -11,6 +11,7 @@ export const translations = {
       funds: "Funds",
       logs: "Log Audit",
       contractManager: "Contract Settings",
+      wallets: "Wallet Management",
       params: "Global Params",
       loggedAs: "Logged as Root"
     },
@@ -521,6 +522,55 @@ export const translations = {
         settleFreq: "Funding Frequency",
         orderFreq: "Order Rate Limit"
       }
+    },
+    wallets: {
+      title: "Wallet Management",
+      subtitle: "Manage hot wallets for GAS payment, recharge in time if balance is low.",
+      addBtn: "Add Wallet",
+      placeholder: "Search wallet name...",
+      table: {
+        id: "Wallet ID",
+        name: "Name",
+        address: "Address",
+        balance: "ETH Balance",
+        remark: "Remark",
+        time: "Added Time",
+        actions: "Actions",
+        status: "Status",
+        recharge: "Recharge"
+      },
+      status: {
+        normal: "Normal",
+        normalDesc: "Balance > 0.1 ETH",
+        low: "Low Risk",
+        lowDesc: "Balance 0.05 - 0.1 ETH",
+        medium: "Medium Risk",
+        mediumDesc: "Balance 0.01 - 0.05 ETH",
+        high: "High Risk",
+        highDesc: "Balance < 0.01 ETH"
+      },
+      modal: {
+        title: "Add Hot Wallet",
+        name: "Wallet Name",
+        address: "Wallet Address",
+        privateKey: "Private Key",
+        remark: "Remark",
+        required: "Required",
+        success: "Add successful",
+        invalidAddress: "Invalid Ethereum address",
+        invalidKey: "Invalid Ethereum private key",
+        nameTooLong: "Name must be <= 20 chars",
+        remarkTooLong: "Remark must be <= 200 chars"
+      },
+      delete: {
+        title: "Delete Wallet",
+        desc: "Are you sure you want to delete this wallet? This action cannot be undone."
+      },
+      recharge: {
+        title: "Recharge Wallet",
+        desc: "Scan the QR code to recharge ETH to this address.",
+        copy: "Copy Address"
+      }
     }
   },
   zhCN: {
@@ -535,6 +585,7 @@ export const translations = {
       funds: "资金记录",
       logs: "日志审计",
       contractManager: "合约管理",
+      wallets: "钱包管理",
       params: "全局参数",
       loggedAs: "当前登录: Root"
     },
@@ -1045,6 +1096,55 @@ export const translations = {
         settleFreq: "资金费率结算频率",
         orderFreq: "下单频率限制",
         penalty: "罚息比例"
+      }
+    },
+    wallets: {
+      title: "钱包管理",
+      subtitle: "管理用于代付Gas的热钱包，余额不足需要及时充值。",
+      addBtn: "添加钱包",
+      placeholder: "搜索钱包名称...",
+      table: {
+        id: "钱包 ID",
+        name: "钱包名称",
+        address: "钱包地址",
+        balance: "ETH 余额",
+        remark: "备注",
+        time: "添加时间",
+        actions: "操作",
+        status: "状态",
+        recharge: "充值"
+      },
+      status: {
+        normal: "正常",
+        normalDesc: "余额 > 0.1 ETH",
+        low: "低风险",
+        lowDesc: "余额 0.05 - 0.1 ETH",
+        medium: "中风险",
+        mediumDesc: "余额 0.01 - 0.05 ETH",
+        high: "高风险",
+        highDesc: "余额 < 0.01 ETH"
+      },
+      modal: {
+        title: "添加热钱包",
+        name: "钱包名称",
+        address: "钱包地址",
+        privateKey: "钱包私钥",
+        remark: "备注",
+        required: "必填",
+        success: "添加成功",
+        invalidAddress: "无效的以太坊地址",
+        invalidKey: "无效的以太坊私钥",
+        nameTooLong: "名称不得超过 20 个字符",
+        remarkTooLong: "备注不得超过 200 个字符"
+      },
+      delete: {
+        title: "删除钱包",
+        desc: "确定要删除该钱包吗？此操作无法撤销。"
+      },
+      recharge: {
+        title: "钱包充值",
+        desc: "扫描二维码向该地址充值 ETH。",
+        copy: "复制地址"
       }
     }
   },

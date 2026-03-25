@@ -50,3 +50,13 @@ export interface Alert {
   level: 'LOW' | 'MEDIUM' | 'HIGH';
   isRead: boolean;
 }
+
+export interface Wallet {
+  id: string;
+  name: string;
+  address: string;
+  privateKey: string;
+  balance: number;
+  remark: string;
+  addedAt: string;
+}

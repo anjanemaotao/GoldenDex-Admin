@@ -1,22 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, RefreshCcw, LayoutGrid, ChevronDown, TrendingUp, TrendingDown, Minus, Info, HeartPulse } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
+import axios from 'axios';
 
 const SystemHealth: React.FC = () => {
   const { t, showTip } = useLanguage();
   const [selectedContract, setSelectedContract] = useState('XAUUSDC');
   const [refreshing, setRefreshing] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [healthData, setHealthData] = useState<any>(null);
   const contracts = ['XAUUSDC', 'BTCUSDC', 'ETHUSDC', 'SOLUSDC'];
   
-  const handleRefresh = () => {
-    setRefreshing(true);
-    // Simulate data fetch delay
-    setTimeout(() => {
-      setRefreshKey(prev => prev + 1);
+  const fetchHealth = async (showToast = false) => {
+    try {
+      setRefreshing(true);
+      const response = await axios.get('/api/system/health');
+      setHealthData(response.data);
+      if (showToast) showTip(t.tips.success, 'success');
+    } catch (error) {
+      console.error('Failed to fetch health data:', error);
+      showTip('Failed to fetch system health', 'error');
+    } finally {
       setRefreshing(false);
-      showTip(t.tips.success, 'success');
-    }, 800);
+    }
+  };
+
+  useEffect(() => {
+    fetchHealth();
+    const interval = setInterval(() => fetchHealth(), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleRefresh = () => {
+    fetchHealth(true);
   };
 
   // Trend color helper: Green > +5%, Yellow ±5%, Red < -5%
@@ -42,38 +57,38 @@ const SystemHealth: React.FC = () => {
     {
       title: t.health.cat1,
       metrics: [
-        { label: t.health.labels.insRatio, value: '10.2%', status: 'green', desc: t.health.labels.insRatioDesc },
-        { label: t.health.labels.avgMr, value: '34.5%', status: 'green', desc: t.health.labels.avgMrDesc },
-        { label: t.health.labels.liqRate, value: '0.12%', status: 'green', desc: t.health.labels.liqRateDesc },
+        { label: t.health.labels.insRatio, value: healthData?.insRatio || '...', status: 'green', desc: t.health.labels.insRatioDesc },
+        { label: t.health.labels.avgMr, value: healthData?.avgMr || '...', status: 'green', desc: t.health.labels.avgMrDesc },
+        { label: t.health.labels.liqRate, value: healthData?.liqRate || '...', status: 'green', desc: t.health.labels.liqRateDesc },
       ]
     },
     {
       title: t.health.cat2,
       metrics: [
-        { label: t.health.labels.vaultDep, value: '1.2%', status: 'green', desc: t.health.labels.vaultDepDesc },
-        { label: t.health.labels.withCount, value: '124', status: 'green', desc: t.health.labels.withCountDesc },
+        { label: t.health.labels.vaultDep, value: healthData?.vaultDep || '...', status: 'green', desc: t.health.labels.vaultDepDesc },
+        { label: t.health.labels.withCount, value: healthData?.withCount?.toString() || '...', status: 'green', desc: t.health.labels.withCountDesc },
       ]
     },
     {
       title: t.health.cat3,
       metrics: [
-        { label: t.health.labels.matchingLat, value: '45ms', status: 'green', desc: t.health.labels.matchingLatDesc },
-        { label: t.health.labels.apiDelay, value: '1.1s', status: 'amber', desc: t.health.labels.apiDelayDesc },
+        { label: t.health.labels.matchingLat, value: healthData?.matchingLat || '...', status: 'green', desc: t.health.labels.matchingLatDesc },
+        { label: t.health.labels.apiDelay, value: healthData?.apiDelay || '...', status: 'amber', desc: t.health.labels.apiDelayDesc },
       ]
     },
     {
       title: t.health.cat4,
       isContractDependent: true,
       metrics: [
-        { label: t.health.labels.priceDev, value: '0.15%', status: 'green', desc: t.health.labels.priceDevDesc },
+        { label: t.health.labels.priceDev, value: healthData?.priceDev || '...', status: 'green', desc: t.health.labels.priceDevDesc },
       ]
     },
     {
       title: t.health.cat5,
       metrics: [
-        { label: t.health.labels.newUsers24h, value: '1,284', trend: 12.5, desc: t.health.labels.newUsers24hDesc, status: getStatusFromTrend(12.5) },
-        { label: t.health.labels.vol24h, value: '$45.2M', trend: 1.2, desc: t.health.labels.vol24hDesc, status: getStatusFromTrend(1.2) },
-        { label: t.health.labels.fees24h, value: '$22.5K', trend: -8.4, desc: t.health.labels.fees24hDesc, status: getStatusFromTrend(-8.4) },
+        { label: t.health.labels.newUsers24h, value: healthData?.newUsers24h?.toLocaleString() || '...', trend: 12.5, desc: t.health.labels.newUsers24hDesc, status: getStatusFromTrend(12.5) },
+        { label: t.health.labels.vol24h, value: healthData?.vol24h || '...', trend: 1.2, desc: t.health.labels.vol24hDesc, status: getStatusFromTrend(1.2) },
+        { label: t.health.labels.fees24h, value: healthData?.fees24h || '...', trend: -8.4, desc: t.health.labels.fees24hDesc, status: getStatusFromTrend(-8.4) },
       ]
     }
   ];
@@ -111,7 +126,7 @@ const SystemHealth: React.FC = () => {
                   <select 
                     value={selectedContract}
                     onChange={(e) => setSelectedContract(e.target.value)}
-                    className="bg-gray-800 border border-gray-700 rounded-lg py-1 pl-8 pr-8 text-xs font-bold text-amber-500 focus:border-amber-500 outline-none appearance-none cursor-pointer hover:bg-gray-700 transition-colors"
+                    className="bg-gray-800 border border-gray-700 rounded-lg py-1 pl-8 pr-8 text-xs font-bold text-amber-500 focus:border-amber-500 outline-none appearance-none cursor-pointer hover:bg-gray-700 transition-colors border-none"
                   >
                     {contracts.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -142,7 +157,6 @@ const SystemHealth: React.FC = () => {
                     </div>
                     <div className="text-right ml-4">
                       <div 
-                        key={`${refreshKey}-${idx}-${mIdx}`}
                         className={`text-xl font-black transition-all duration-500 ${metric.status === 'green' ? 'text-white' : (metric.status === 'red' ? 'text-red-500' : 'text-amber-500')} ${refreshing ? 'opacity-30 blur-[2px] translate-y-2' : 'opacity-100 blur-0 translate-y-0 animate-in slide-in-from-bottom-2'}`}
                       >
                         {metric.value}

@@ -366,7 +366,7 @@ const AdminSettings: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">{t.admin.modals.fields.role}</label>
-                <select value={adminForm.roleId} onChange={e => setAdminForm({...adminForm, roleId: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all appearance-none">
+                <select value={adminForm.roleId} onChange={e => setAdminForm({...adminForm, roleId: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 transition-all appearance-none border-none">
                   {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </div>

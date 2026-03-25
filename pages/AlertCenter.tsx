@@ -151,7 +151,7 @@ const AlertCenter: React.FC = () => {
           <select 
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-transparent text-xs text-gray-300 font-bold outline-none cursor-pointer pr-4"
+            className="bg-transparent text-xs text-gray-300 font-bold outline-none cursor-pointer pr-4 border-none"
           >
             {alertTypes.map(type => (
               <option key={type.value} value={type.value} className="bg-gray-900">{type.label}</option>
@@ -166,14 +166,14 @@ const AlertCenter: React.FC = () => {
             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.market?.dateRange || 'Range'}:</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer border-none"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
             />
             <span className="text-gray-700">-</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer border-none"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
             />

@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { Trophy, ShieldCheck, Loader2, Shield } from 'lucide-react';
+import { Trophy, ShieldCheck, Loader2, Shield, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
+import { ethers } from 'ethers';
 
 interface LoginProps {
   onLogin: (address: string) => void;
 }
 
-// Fixed the component definition to correctly destructure onLogin from props
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const { t } = useLanguage();
   const [connecting, setConnecting] = useState(false);
   const [signing, setSigning] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const wallets = [
     { 
@@ -27,7 +28,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     { 
       name: t.login.binance, 
       id: 'binance', 
-      icon: "https://cryptologos.cc/logos/binance-coin-bnb-logo.svg?v=024" 
+      icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png" 
     },
     { 
       name: t.login.walletconnect, 
@@ -36,18 +37,37 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     },
   ];
 
-  const handleConnect = (id: string) => {
+  const handleConnect = async (id: string) => {
+    setError(null);
     setSelectedWallet(id);
     setConnecting(true);
     
-    setTimeout(() => {
-      setConnecting(false);
-      setSigning(true);
+    try {
+      if (!(window as any).ethereum) {
+        throw new Error('No Web3 wallet detected. Please install MetaMask or OKX Wallet.');
+      }
+
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const accounts = await provider.send("eth_requestAccounts", []);
       
-      setTimeout(() => {
-        onLogin('0x71C7656EC7ab88b098defB751B7401B5f6d8976F');
-      }, 2000);
-    }, 1500);
+      if (accounts.length > 0) {
+        setConnecting(false);
+        setSigning(true);
+        
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        const message = `GoldenDex Admin Login\nTimestamp: ${Date.now()}\nWallet: ${address}`;
+        const signature = await signer.signMessage(message);
+        
+        console.log('Signature:', signature);
+        onLogin(address);
+      }
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to connect or sign');
+      setConnecting(false);
+      setSigning(false);
+    }
   };
 
   return (
@@ -69,6 +89,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </div>
 
         <div className="bg-gray-900/40 backdrop-blur-xl border border-gray-800 rounded-[32px] p-8 shadow-2xl mx-auto max-w-md">
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-2xl flex items-start space-x-3 animate-in slide-in-from-top-2">
+              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-red-200 font-medium leading-relaxed">{error}</p>
+            </div>
+          )}
           {!connecting && !signing ? (
             <div className="space-y-6">
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest text-center">{t.login.selectWallet}</p>

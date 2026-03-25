@@ -175,7 +175,7 @@ const RiskCenter: React.FC = () => {
           <select 
             value={selectedContract}
             onChange={(e) => setSelectedContract(e.target.value)}
-            className="bg-gray-900 border border-gray-800 rounded-xl py-2 pl-10 pr-10 text-sm font-bold text-amber-500 focus:border-amber-500 outline-none appearance-none cursor-pointer hover:bg-gray-800 transition-colors"
+            className="bg-gray-900 border border-gray-800 rounded-xl py-2 pl-10 pr-10 text-sm font-bold text-amber-500 focus:border-amber-500 outline-none appearance-none cursor-pointer hover:bg-gray-800 transition-colors border-none"
           >
             {contracts.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -196,7 +196,7 @@ const RiskCenter: React.FC = () => {
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">{t.risk.modals.chain}</label>
                 <div className="relative">
                   <Globe className="absolute left-3 top-2.5 h-4 w-4 text-amber-500" />
-                  <select className="w-full bg-gray-800 border border-gray-700 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none appearance-none text-gray-300">
+                  <select className="w-full bg-gray-800 border border-gray-700 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none appearance-none text-gray-300 border-none">
                     <option>Arbitrum</option>
                     <option>Ethereum</option>
                   </select>
@@ -207,7 +207,7 @@ const RiskCenter: React.FC = () => {
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">{t.risk.modals.token}</label>
                 <div className="relative">
                   <Coins className="absolute left-3 top-2.5 h-4 w-4 text-amber-500" />
-                  <select className="w-full bg-gray-800 border border-gray-700 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none appearance-none text-gray-300">
+                  <select className="w-full bg-gray-800 border border-gray-700 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none appearance-none text-gray-300 border-none">
                     <option>USDC</option>
                     <option>USDT</option>
                   </select>

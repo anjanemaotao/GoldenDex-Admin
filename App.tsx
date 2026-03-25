@@ -15,6 +15,7 @@ import FundRecords from './pages/FundRecords';
 import AuditLogs from './pages/AuditLogs';
 import ContractManager from './pages/ContractManager';
 import ContractSettings from './pages/ContractSettings';
+import WalletManagement from './pages/WalletManagement';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -61,6 +62,7 @@ const App: React.FC = () => {
                 <Route path="/funds" element={<FundRecords />} />
                 <Route path="/logs" element={<AuditLogs />} />
                 <Route path="/contracts" element={<ContractManager />} />
+                <Route path="/wallets" element={<WalletManagement />} />
                 <Route path="/settings" element={<ContractSettings />} />
               </Routes>
             </main>

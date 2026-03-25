@@ -86,7 +86,7 @@ const MarketWatch: React.FC = () => {
             <select 
               value={selectedContract}
               onChange={(e) => setSelectedContract(e.target.value)}
-              className="bg-gray-900 border border-gray-800 rounded-xl py-2 pl-10 pr-10 text-sm font-bold text-amber-500 focus:border-amber-500 outline-none appearance-none cursor-pointer hover:bg-gray-800 transition-colors"
+              className="bg-gray-900 border border-gray-800 rounded-xl py-2 pl-10 pr-10 text-sm font-bold text-amber-500 focus:border-amber-500 outline-none appearance-none cursor-pointer hover:bg-gray-800 transition-colors border-none"
             >
               {contracts.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -156,14 +156,14 @@ const MarketWatch: React.FC = () => {
             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.market.dateRange}:</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark]"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] border-none"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
             />
             <span className="text-gray-700">-</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark]"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] border-none"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
             />
@@ -171,7 +171,7 @@ const MarketWatch: React.FC = () => {
         </div>
 
         {activeTab === 'OPEN' && (
-          <select className="bg-gray-900 border border-gray-800 rounded-xl py-2 px-4 text-sm font-medium focus:border-amber-500 outline-none text-gray-400 cursor-pointer">
+          <select className="bg-gray-900 border border-gray-800 rounded-xl py-2 px-4 text-sm font-medium focus:border-amber-500 outline-none text-gray-400 cursor-pointer border-none">
             <option>{t.common.status}: {t.common.all}</option>
             <option>{t.market.normal}</option>
             <option>{t.market.warning}</option>

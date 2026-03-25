@@ -271,14 +271,14 @@ const FundRecords: React.FC = () => {
             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.funds?.filters?.dateRange || 'Range'}:</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer border-none"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
             />
             <span className="text-gray-700">-</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer border-none"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
             />
@@ -290,7 +290,7 @@ const FundRecords: React.FC = () => {
             <select 
               value={tokenFilter}
               onChange={(e) => setTokenFilter(e.target.value)}
-              className="bg-gray-950 border border-gray-800 rounded-xl py-2 px-4 text-xs font-bold text-gray-400 outline-none focus:border-amber-500 transition-colors cursor-pointer appearance-none pr-8"
+              className="bg-gray-950 border border-gray-800 rounded-xl py-2 px-4 text-xs font-bold text-gray-400 outline-none focus:border-amber-500 transition-colors cursor-pointer appearance-none pr-8 border-none"
             >
               <option value="USDC">USDC</option>
               <option value="ETH">ETH</option>
@@ -302,7 +302,7 @@ const FundRecords: React.FC = () => {
             <select 
               value={networkFilter}
               onChange={(e) => setNetworkFilter(e.target.value)}
-              className="bg-gray-950 border border-gray-800 rounded-xl py-2 px-4 text-xs font-bold text-gray-400 outline-none focus:border-amber-500 transition-colors cursor-pointer appearance-none pr-8"
+              className="bg-gray-950 border border-gray-800 rounded-xl py-2 px-4 text-xs font-bold text-gray-400 outline-none focus:border-amber-500 transition-colors cursor-pointer appearance-none pr-8 border-none"
             >
               <option value="Arbitrum">Arbitrum</option>
               <option value="Ethereum">Ethereum</option>

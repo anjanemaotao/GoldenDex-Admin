@@ -111,14 +111,14 @@ const UserManagement: React.FC = () => {
             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{t.users.regTime}:</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer border-none"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
             />
             <span className="text-gray-700">-</span>
             <input 
               type="date" 
-              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer"
+              className="bg-transparent text-xs text-gray-300 outline-none [color-scheme:dark] cursor-pointer border-none"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
             />
@@ -128,7 +128,7 @@ const UserManagement: React.FC = () => {
         <select 
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-gray-900 border border-gray-800 rounded-lg py-2 px-4 text-sm focus:border-amber-500 outline-none text-gray-400 font-bold cursor-pointer"
+          className="bg-gray-900 border border-gray-800 rounded-lg py-2 px-4 text-sm focus:border-amber-500 outline-none text-gray-400 font-bold cursor-pointer border-none"
         >
           <option value="ALL">{t.common.status}: {t.common.all}</option>
           <option value="ACTIVE">{t.users.statusActive}</option>
